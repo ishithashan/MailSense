@@ -1,0 +1,14 @@
+setup.py
+automation/__init__.py
+automation/auth.py
+automation/config.py
+automation/excel_writer.py
+automation/gmail_reader.py
+automation/test_auth.py
+automation/test_env.py
+mailsense.egg-info/PKG-INFO
+mailsense.egg-info/SOURCES.txt
+mailsense.egg-info/dependency_links.txt
+mailsense.egg-info/top_level.txt
+middleware/__init__.py
+middleware/server.py
