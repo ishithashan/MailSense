@@ -157,3 +157,57 @@ def classify_by_sender(sender):
         return "Google Forms"
 
     return None  # "General"
+
+#delete it later
+def auto_label(subject, body, sender):
+    text = (subject + " " + body).lower()
+
+    # 🎯 Placement (highest priority)
+    if any(x in sender.lower() for x in [
+        "placementexecutive",
+        "placement@",
+        "tnp",
+    ]) or any(x in text for x in [
+        "placement drive",
+        "shortlisted",
+        "interview",
+        "ctc",
+        "offer letter"
+    ]):
+        return "Placement"
+
+    # 🏫 College
+    elif any(x in text for x in [
+        "holiday",
+        "exam",
+        "internal",
+        "semester",
+        "attendance",
+        "class",
+        "timetable"
+    ]):
+        return "College"
+
+    # 📰 Newsletter
+    elif any(x in text for x in [
+        "newsletter",
+        "subscribe",
+        "unsubscribe",
+        "community",
+        "event",
+        "webinar"
+    ]):
+        return "Newsletter"
+
+    # 🚫 Spam
+    elif any(x in text for x in [
+        "buy now",
+        "offer",
+        "discount",
+        "sale",
+        "limited time"
+    ]):
+        return "Spam"
+
+    # 🤷 Default
+    return "Other"

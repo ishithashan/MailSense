@@ -47,11 +47,9 @@ def get_or_create_sheet(credentials):
 
     return spreadsheet_id
 
-
+"""
 def save_emails_to_excel(emails, credentials):
-    """
-    Save emails to the user's spreadsheet in their Drive.
-    """
+    #Save emails to the user's spreadsheet in their Drive.
     service = build_sheets_service(credentials)
     spreadsheet_id = get_or_create_sheet(credentials)
 
@@ -80,3 +78,50 @@ def save_emails_to_excel(emails, credentials):
 
     print("Spreadsheet ID:", spreadsheet_id)
     print("Open URL: https://docs.google.com/spreadsheets/d/" + spreadsheet_id)
+"""
+def save_emails_to_excel(emails, credentials):
+    """
+    Clear previous data and write fresh emails.
+    """
+    service = build_sheets_service(credentials)
+    spreadsheet_id = get_or_create_sheet(credentials)
+
+    if not emails:
+        print("No emails to save.")
+        return
+
+    # Prepare rows
+    rows = []
+    for email in emails:
+        rows.append([
+            email.get("user_email", ""),
+            email.get("sender", ""),
+            email.get("subject", ""),
+            email.get("time", ""),
+            email.get("date", ""),
+            email.get("body", ""),
+            email.get("status", ""),
+            email.get("category", "")
+        ])
+
+    try:
+        # 🔥 STEP 1: Clear old data (keep header)
+        service.spreadsheets().values().clear(
+            spreadsheetId=spreadsheet_id,
+            range='Sheet1!A2:Z'
+        ).execute()
+
+        # 🔥 STEP 2: Write new data from row 2
+        service.spreadsheets().values().update(
+            spreadsheetId=spreadsheet_id,
+            range='Sheet1!A2',
+            valueInputOption='RAW',
+            body={'values': rows}
+        ).execute()
+
+        print(f"✅ Sheet updated with {len(rows)} emails")
+        print("Open URL: https://docs.google.com/spreadsheets/d/" + spreadsheet_id)
+
+    except HttpError as err:
+        print("Error updating sheet:", err)
+        raise err
