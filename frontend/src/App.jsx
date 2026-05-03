@@ -10,7 +10,7 @@ function App() {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    fetch("https://recmailsense.onrender.com/check_auth", {
+    fetch("/api/check_auth", {
       credentials: "include",
     })
       .then((res) => {

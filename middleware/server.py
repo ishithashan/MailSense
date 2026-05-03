@@ -8,6 +8,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from flask import Flask, session, jsonify, render_template, redirect, request, url_for
 from flask_cors import CORS #ADDED
 from flask_session import Session
+from flask import send_from_directory
 
 #from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
@@ -23,7 +24,11 @@ import os
 import json
 import pandas as pd
 
-app = Flask(__name__, template_folder="../frontend")
+app = Flask(
+    __name__,
+    static_folder="../frontend/dist",
+    static_url_path=""
+)
 CORS(app,
      supports_credentials=True,
      origins=["https://recmailsense-1.onrender.com"])
@@ -34,7 +39,6 @@ app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True
 
-app.config["SESSION_COOKIE_DOMAIN"] = ".onrender.com"
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -52,7 +56,7 @@ if os.getenv("RENDER") is None:
 # -------------------------
 # Homepage
 # -------------------------
-@app.route("/") #"/" this root, 
+@app.route("/api") #"/" this root, 
 def index():
     FRONTEND_URL = "https://recmailsense-1.onrender.com"
     return redirect(FRONTEND_URL)
@@ -60,7 +64,7 @@ def index():
 # -------------------------
 # Login route
 # -------------------------
-@app.route("/login")
+@app.route("/api/login")
 def login():
     session.clear()  # 🔥 FORCE RESET
     flow = get_flow()
@@ -75,12 +79,14 @@ def login():
     session["state"] = state
     session["code_verifier"] = flow.code_verifier
 
-    return redirect(auth_url)
+    response = redirect(auth_url)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
 
 # -------------------------
 # OAuth callback
 # -------------------------
-@app.route("/oauth2callback")
+@app.route("/api/oauth2callback")
 def oauth2callback():
     if "state" not in session or "code_verifier" not in session:
         return redirect(url_for("login"))  # 🔥 FIX
@@ -107,7 +113,7 @@ def oauth2callback():
 # -------------------------
 # check auth route
 # -------------------------
-@app.route("/check_auth")
+@app.route("/api/check_auth")
 def check_auth():
     if "credentials" in session:
          return jsonify({
@@ -121,7 +127,7 @@ def check_auth():
 # Fetch emails route
 # -------------------------
 
-@app.route("/fetch_emails")
+@app.route("/api/fetch_emails")
 def fetch_emails():
     creds_json = session.get("credentials")
     # if not creds_json:
@@ -164,6 +170,13 @@ def fetch_emails():
     "emails": emails   # 🔥 ADD THIS LINE
     })
 
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_react(path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+
+    return send_from_directory(app.static_folder, "index.html")
 # -------------------------
 # Run Flask server
 # -------------------------

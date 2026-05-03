@@ -48,10 +48,7 @@ from automation.config import SCOPES
 # Read credentials from ENV (NOT FILE)
 credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
 
-REDIRECT_URI = os.getenv(
-    "REDIRECT_URI",
-    "https://recmailsense.onrender.com/oauth2callback"
-)
+REDIRECT_URI = "https://recmailsense.onrender.com/api/oauth2callback"
 
 def get_flow(state=None):
     if not credentials_json:

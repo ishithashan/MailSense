@@ -127,11 +127,11 @@ function Dashboard() {
   const fetchEmails = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("https://recmailsense.onrender.com/fetch_emails", {
+      const res = await fetch("/api/fetch_emails", {
   credentials: "include"
 });
       if (res.redirected || res.status === 401) {
-        window.location.href = "https://recmailsense.onrender.com/login";
+        window.location.href = "/api/login";
         return;
       }
       const data = await res.json();
