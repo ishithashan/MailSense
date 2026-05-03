@@ -130,6 +130,7 @@ def check_auth():
 # -------------------------
 # Fetch emails route
 # -------------------------
+"""
 @app.route("/api/fetch_emails")
 def fetch_emails():
     creds_json = session.get("credentials")
@@ -155,7 +156,9 @@ def fetch_emails():
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-"""@app.route("/api/fetch_emails")
+
+        """
+@app.route("/api/fetch_emails")
 def fetch_emails():
     creds_json = session.get("credentials")
     # if not creds_json:
@@ -194,9 +197,9 @@ def fetch_emails():
     return jsonify({
     "status": "success",
     "user": user_email,
-    "emails_processed": len(emails),
-    "emails": emails   # 🔥 ADD THIS LINE
-    })"""
+    "emails": emails,
+    "count": len(emails)
+    })
 
 # -------------------------
 # Homepage
