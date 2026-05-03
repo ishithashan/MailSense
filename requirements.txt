@@ -10,3 +10,5 @@ google-auth-httplib2
 python-dotenv
 scikit-learn
 joblib
+flask-cors
+google-api-python-client

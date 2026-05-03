@@ -3,4 +3,4 @@ services:
     name: mailsense-backend
     env: python
     buildCommand: ""
-    startCommand: python server.py
+    startCommand: python run.py
