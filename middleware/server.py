@@ -180,9 +180,11 @@ def fetch_emails():
 def serve_react(path):
     full_path = os.path.join(app.static_folder, path)
 
+    # If file exists → serve it
     if path != "" and os.path.exists(full_path):
         return send_from_directory(app.static_folder, path)
 
+    # Otherwise ALWAYS return React app
     return send_from_directory(app.static_folder, "index.html")
 
 # -------------------------
