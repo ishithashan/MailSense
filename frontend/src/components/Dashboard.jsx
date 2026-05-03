@@ -111,8 +111,12 @@ useEffect(() => {
   };
 
   // Filter + search
-  const visible = emails.filter(e => {
+let visible = emails;
+
+if (activePage === "dashboard") {
+  visible = emails.filter(e => {
     const cat = e.category || "Others";
+
     const matchFilter =
       filter === "All"       ? true :
       filter === "Placement" ? cat === "Placement" :
@@ -120,13 +124,16 @@ useEffect(() => {
       filter === "Notices"   ? cat === "Notices" :
       filter === "Others"    ? !["Placement","Academic","NPTEL","GCR","Notices"].includes(cat) :
       true;
+
     const q = search.toLowerCase();
     const matchSearch = !q ||
       (e.sender || "").toLowerCase().includes(q) ||
       (e.subject || "").toLowerCase().includes(q) ||
       (e.body || "").toLowerCase().includes(q);
+
     return matchFilter && matchSearch;
   });
+}
 
   const pills = ["All", "Placement", "Academic", "Notices", "Others"];
   const pillActiveClass = (p) => {
@@ -174,7 +181,9 @@ useEffect(() => {
           {/* Page Header */}
           <div className="page-header">
             <div>
-              <h1>Inbox Dashboard</h1>
+              <h1>
+                {activePage === "dashboard" ? "Dashboard" : "Inbox"}
+              </h1>
               {/*<p>Smart email classification using Rule-Based + Naive Bayes ML</p>*/}
             </div>
             <div className="header-actions">
@@ -232,6 +241,7 @@ useEffect(() => {
           {/* Email Table */}
           <div className="email-section">
             <div className="table-toolbar">
+              {activePage === "dashboard" && (
               <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                 <span className="filter-label">Filter by Category:</span>
                 <div className="filter-pills">
@@ -246,6 +256,7 @@ useEffect(() => {
                   ))}
                 </div>
               </div>
+            )}
               <div className="search-box">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -292,7 +303,7 @@ useEffect(() => {
                       const cat = formatCategory(email.category || "Others");
                       const meta = catMeta(email.category || "Others");
                       const initials = getInitials(email.sender || "?");
-                      const receivedAt = email.time ? `${email.time}` : (email.date || "—");
+                      const receivedAt = `${email.time || ""} ${email.date || ""}`;
                       return (
                         <tr key={i}>
                           <td>
@@ -343,9 +354,6 @@ useEffect(() => {
               </table>
             )}
           </div>
-
-          {/* Workflow Diagram */}
-          {/*<WorkflowDiagram />*/}
         </div>
       </div>
     </div>

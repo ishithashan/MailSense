@@ -81,7 +81,7 @@ def fetch_emails_with_body(service, user_email):
                 IST = timezone(timedelta(hours=5, minutes=30))
                 dt = datetime.fromtimestamp(int(internal_date) / 1000, tz=timezone.utc).astimezone(IST)
                 time = dt.strftime("%I:%M %p")
-                #date = dt.strftime("%d %b")
+                date = dt.strftime("%d %b")
 
             raw_body = extract_body(message["payload"])
             body = clean_email_body(raw_body)
