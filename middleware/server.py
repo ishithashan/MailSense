@@ -18,6 +18,8 @@ from google.oauth2.credentials import Credentials
 from automation.gmail_reader import fetch_emails_with_body
 from automation.excel_writer import save_emails_to_excel
 from automation.auth import get_flow, build_gmail_service
+from automation.pipeline import run_pipeline
+
 #from automation.ml.predict import ml_predict
 
 import os
@@ -128,8 +130,32 @@ def check_auth():
 # -------------------------
 # Fetch emails route
 # -------------------------
-
 @app.route("/api/fetch_emails")
+def fetch_emails():
+    creds_json = session.get("credentials")
+
+    if not creds_json:
+        return jsonify({"status": "unauthorized"}), 401
+
+    try:
+        user_email = session.get("user_email")
+
+        if not user_email:
+            return jsonify({"status": "error", "message": "User email not found"}), 400
+
+        # 🔥 RUN FULL PIPELINE
+        emails = run_pipeline(creds_json, user_email)
+
+        return jsonify({
+            "status": "success",
+            "user": user_email,
+            "emails": emails,
+            "count": len(emails)
+        })
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+"""@app.route("/api/fetch_emails")
 def fetch_emails():
     creds_json = session.get("credentials")
     # if not creds_json:
@@ -170,7 +196,7 @@ def fetch_emails():
     "user": user_email,
     "emails_processed": len(emails),
     "emails": emails   # 🔥 ADD THIS LINE
-    })
+    })"""
 
 # -------------------------
 # Homepage
