@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from flask import Flask, session, jsonify, render_template, redirect, request, url_for
-from flask_cors import CORS #ADDED
+from flask_cors import CORS
 from flask_session import Session
 from flask import send_from_directory
 
@@ -29,19 +29,22 @@ app = Flask(
     static_folder="../frontend/dist",
     static_url_path=""
 )
-CORS(app,
-     supports_credentials=True,
-     origins=["https://recmailsense.onrender.com"])
 
+CORS(
+    app,
+    supports_credentials=True,
+    origins=["https://recmailsense.onrender.com"]
+)
 app.config["SECRET_KEY"] = "mailsense-secret"
 
-app.config["SESSION_TYPE"] = "filesystem"
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_USE_SIGNER"] = True
-
-app.config["SESSION_COOKIE_SAMESITE"] = "None"
-app.config["SESSION_COOKIE_SECURE"] = True
-app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config.update(
+    SESSION_TYPE="filesystem",
+    SESSION_PERMANENT=False,
+    SESSION_USE_SIGNER=True,
+    SESSION_COOKIE_SAMESITE="None",
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+)
 
 Session(app)
 
@@ -52,14 +55,6 @@ SCOPES = [
 ]
 if os.getenv("RENDER") is None:
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # Only for local dev
-
-# -------------------------
-# Homepage
-# -------------------------
-@app.route("/api") #"/" this root, 
-def index():
-    FRONTEND_URL = "https://recmailsense.onrender.com"
-    return redirect(FRONTEND_URL)
 
 # -------------------------
 # Login route
@@ -106,9 +101,10 @@ def oauth2callback():
     profile = service.users().getProfile(userId="me").execute()
 
     session["user_email"] = profile["emailAddress"]
+    session.modified = True # 🔥 ENSURE SESSION IS SAVED
 
     FRONTEND_URL = os.getenv("FRONTEND_URL", "https://recmailsense.onrender.com")
-    return redirect(FRONTEND_URL + "/api/main")
+    return redirect(FRONTEND_URL + "/main")
 
 # -------------------------
 # check auth route
@@ -170,6 +166,9 @@ def fetch_emails():
     "emails": emails   # 🔥 ADD THIS LINE
     })
 
+# -------------------------
+# Homepage
+# -------------------------
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve_react(path):
