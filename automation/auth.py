@@ -22,6 +22,7 @@ REDIRECT_URI = os.getenv(
     "https://recmailsense.onrender.com/oauth2callback" # default for production
 )
 
+
 def get_flow(state=None):
     if not Path(CREDENTIALS_PATH).exists():
         raise FileNotFoundError(f"credentials.json not found at {CREDENTIALS_PATH}")
