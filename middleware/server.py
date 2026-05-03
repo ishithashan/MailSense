@@ -103,7 +103,7 @@ def oauth2callback():
     session["user_email"] = profile["emailAddress"]
     session.modified = True # 🔥 ENSURE SESSION IS SAVED
 
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "https://recmailsense.onrender.com")
+    FRONTEND_URL = "https://recmailsense.onrender.com"
     return redirect(FRONTEND_URL + "/main")
 
 # -------------------------
