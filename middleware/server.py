@@ -42,7 +42,7 @@ os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # Only for local dev
 # -------------------------
 @app.route("/") #"/" this root, 
 def index():
-    FRONTEND_URL = "https://your-frontend-url.onrender.com"
+    FRONTEND_URL = "https://recmailsense-1.onrender.com"
     return redirect(FRONTEND_URL)
 
 # -------------------------
