@@ -127,11 +127,11 @@ function Dashboard() {
   const fetchEmails = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("https://mailsense-1hh2.onrender.com/fetch_emails", {
+      const res = await fetch("https://mailsense-backend.onrender.com/fetch_emails", {
   credentials: "include"
 });
       if (res.redirected || res.status === 401) {
-        window.location.href = "https://mailsense-1hh2.onrender.com/login";
+        window.location.href = "https://mailsense-backend.onrender.com/login";
         return;
       }
       const data = await res.json();
