@@ -19,8 +19,7 @@ print("Using credentials at:", CREDENTIALS_PATH)
 # 🔥 ADD THIS
 REDIRECT_URI = os.getenv(
     "REDIRECT_URI",
-    "https://recmailsense.onrender.com/oauth2callback", # default for production
-    "http://localhost:5000/oauth2callback"  # default for local
+    "https://recmailsense.onrender.com/oauth2callback" # default for production
 )
 
 def get_flow(state=None):
