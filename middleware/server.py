@@ -24,9 +24,9 @@ import json
 import pandas as pd
 
 app = Flask(__name__, template_folder="../frontend")
-CORS(app, supports_credentials=True, origins=[
-    "https://recmailsense-1.onrender.com"
-])
+CORS(app,
+     supports_credentials=True,
+     origins=["https://recmailsense-1.onrender.com"])
 
 app.config["SECRET_KEY"] = "mailsense-secret"
 
@@ -34,8 +34,10 @@ app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True
 
+app.config["SESSION_COOKIE_DOMAIN"] = ".onrender.com"
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_HTTPONLY"] = True
 
 Session(app)
 
