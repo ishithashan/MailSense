@@ -3,15 +3,17 @@ import "./App.css";
 import Dashboard from "./components/Dashboard.jsx";
 import HomePage from "./components/HomePage.jsx";
 
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
 function App() {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
     fetch("https://recmailsense.onrender.com/check_auth", {
-      credentials: "include"
+      credentials: "include",
     })
-      .then(res => {
+      .then((res) => {
         if (res.status === 200) {
           setAuthenticated(true);
         } else {
@@ -26,7 +28,27 @@ function App() {
     return <div>Loading...</div>;
   }
 
-  return authenticated ? <Dashboard /> : <HomePage />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Home */}
+        <Route
+          path="/"
+          element={
+            authenticated ? <Navigate to="/main" /> : <HomePage />
+          }
+        />
+
+        {/* Dashboard */}
+        <Route
+          path="/main"
+          element={
+            authenticated ? <Dashboard /> : <Navigate to="/" />
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
