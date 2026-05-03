@@ -27,7 +27,7 @@ CORS(app, supports_credentials=True, origins=[
     "https://recmailsense-1.onrender.com"
 ])
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
-app.config["SESSION_COOKIE_SECURE"] = False
+app.config["SESSION_COOKIE_SECURE"] = True
 app.secret_key = "mailsense-secret"
 
 SCOPES = [
@@ -35,14 +35,15 @@ SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file"
 ]
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # Only for local dev
+if os.getenv("RENDER") is None:
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # Only for local dev
 
 # -------------------------
 # Homepage
 # -------------------------
 @app.route("/") #"/" this root, 
 def index():
-    FRONTEND_URL = "https://recmailsense.onrender.com"
+    FRONTEND_URL = "https://recmailsense-1.onrender.com"
     return redirect(FRONTEND_URL)
 
 # -------------------------
@@ -89,29 +90,22 @@ def oauth2callback():
 
     session["user_email"] = profile["emailAddress"]
 
-    FRONTEND_URL = os.getenv("FRONTEND_URL")
-
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "https://recmailsense-1.onrender.com")
     return redirect(FRONTEND_URL + "/main")
 
 # -------------------------
 # check auth route
 # -------------------------
-ALLOWED_USERS = [
-    "you@gmail.com",
-    "friend@gmail.com"
-]
-
 @app.route("/check_auth")
 def check_auth():
-    user = session.get("user_email")
-
-    if user in ALLOWED_USERS:
-        return jsonify({
+    if "credentials" in session:
+         return jsonify({
             "authenticated": True,
-            "user": user
+            "user": session.get("user_email")
         })
 
     return jsonify({"authenticated": False}), 401
+
 
 # -------------------------
 # Fetch emails route
