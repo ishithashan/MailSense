@@ -32,7 +32,8 @@ def extract_body(payload):
 # Fetch emails (00:00 AM → login time)
 # -------------------------
 def fetch_emails_with_body(service, user_email):
-    now = datetime.now()
+    IST = timezone(timedelta(hours=5, minutes=30))
+    now = datetime.now(IST)
 
     # Today at 00:00 AM (local time)
     today_midnight = datetime.combine(now.date(), datetime.min.time())
@@ -76,10 +77,13 @@ def fetch_emails_with_body(service, user_email):
             date = ""
 
             if internal_date:
-                #dt = datetime.fromtimestamp(int(internal_date) / 1000)
-                #time = dt.strftime("%H:%M")
+                # Convert to IST datetime (already done)
                 IST = timezone(timedelta(hours=5, minutes=30))
                 dt = datetime.fromtimestamp(int(internal_date) / 1000, tz=timezone.utc).astimezone(IST)
+
+                # 🔥 STRICT FILTER: only today's emails
+                if dt.date() != now.date():
+                    continue
                 time = dt.strftime("%I:%M %p")
                 date = dt.strftime("%d %b")
 

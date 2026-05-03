@@ -108,7 +108,7 @@ def save_emails_to_excel(emails, credentials):
         # 🔥 STEP 1: Clear old data (keep header)
         service.spreadsheets().values().clear(
             spreadsheetId=spreadsheet_id,
-            range='Sheet1!A2:Z'
+            range='Sheet1!A2:ZZ'
         ).execute()
 
         # 🔥 STEP 2: Write new data from row 2

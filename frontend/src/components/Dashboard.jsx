@@ -23,11 +23,6 @@ function getInitials(sender) {
   return name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
 }
 
-/*function formatCategory(cat) {
-  if (!cat) return "Others";
-  if (cat === "GCR") return "GCR";
-  return cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-}*/
 function formatCategory(cat) {
   if (!cat) return "Others";
   if (cat === "GCR") return "GCR";
@@ -80,7 +75,14 @@ function Dashboard() {
         setEmails(data.emails || []);
         setUserEmail(data.user || "");
         const now = new Date();
-        setLastSync(`${now.getHours().toString().padStart(2,"0")}:${now.getMinutes().toString().padStart(2,"0")} AM`);
+        const hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, "0");
+
+        const formattedTime = `${(hours % 12 || 12)
+          .toString()
+          .padStart(2, "0")}:${minutes} ${hours >= 12 ? "PM" : "AM"}`;
+
+        setLastSync(formattedTime);
       }
     } catch (err) {
       console.error("Fetch error:", err);
@@ -307,7 +309,7 @@ if (activePage === "dashboard") {
                       const cat = formatCategory(email.category || "Others");
                       const meta = catMeta(email.category || "Others");
                       const initials = getInitials(email.sender || "?");
-                      const receivedAt = `${email.time || ""} ${email.date || ""}`;
+                      const receivedAt = `${email.time || ""}`;
                       return (
                         <tr key={i}>
                           <td>
