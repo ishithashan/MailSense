@@ -31,7 +31,7 @@ app = Flask(
 )
 CORS(app,
      supports_credentials=True,
-     origins=["https://recmailsense-1.onrender.com"])
+     origins=["https://recmailsense.onrender.com"])
 
 app.config["SECRET_KEY"] = "mailsense-secret"
 
@@ -58,7 +58,7 @@ if os.getenv("RENDER") is None:
 # -------------------------
 @app.route("/api") #"/" this root, 
 def index():
-    FRONTEND_URL = "https://recmailsense-1.onrender.com"
+    FRONTEND_URL = "https://recmailsense.onrender.com"
     return redirect(FRONTEND_URL)
 
 # -------------------------
@@ -107,8 +107,8 @@ def oauth2callback():
 
     session["user_email"] = profile["emailAddress"]
 
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "https://recmailsense-1.onrender.com")
-    return redirect(FRONTEND_URL + "/main")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "https://recmailsense.onrender.com")
+    return redirect(FRONTEND_URL + "/api/main")
 
 # -------------------------
 # check auth route
