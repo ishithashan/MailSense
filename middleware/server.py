@@ -94,13 +94,21 @@ def oauth2callback():
 # -------------------------
 # check auth route
 # -------------------------
+ALLOWED_USERS = [
+    "you@gmail.com",
+    "friend@gmail.com"
+]
+
 @app.route("/check_auth")
 def check_auth():
-    if "credentials" in session:
+    user = session.get("user_email")
+
+    if user in ALLOWED_USERS:
         return jsonify({
             "authenticated": True,
-            "user": session.get("user_email")
+            "user": user
         })
+
     return jsonify({"authenticated": False}), 401
 
 # -------------------------

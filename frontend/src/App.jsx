@@ -8,7 +8,7 @@ function App() {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    fetch("/check_auth", {
+    fetch("https://mailsense-1hh2.onrender.com/check_auth", {
       credentials: "include"
     })
       .then(res => {
