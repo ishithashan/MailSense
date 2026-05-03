@@ -130,7 +130,6 @@ def check_auth():
 # -------------------------
 # Fetch emails route
 # -------------------------
-"""
 @app.route("/api/fetch_emails")
 def fetch_emails():
     creds_json = session.get("credentials")
@@ -197,9 +196,9 @@ def fetch_emails():
     return jsonify({
     "status": "success",
     "user": user_email,
-    "emails": emails,
-    "count": len(emails)
-    })
+    "emails_processed": len(emails),
+    "emails": emails   # 🔥 ADD THIS LINE
+    })"""
 
 # -------------------------
 # Homepage
