@@ -110,7 +110,7 @@ def oauth2callback():
     session.modified = True # 🔥 ENSURE SESSION IS SAVED
 
     FRONTEND_URL = "https://recmailsense.onrender.com"
-    return redirect(FRONTEND_URL + "/main")
+    return redirect(FRONTEND_URL + "/")
 
 # -------------------------
 # check auth route
