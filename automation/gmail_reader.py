@@ -36,13 +36,11 @@ def fetch_emails_with_body(service, user_email):
     # Today at 00:00 AM (local time)
     today_midnight = datetime.combine(now.date(), datetime.min.time())
 
-    # Convert to UNIX timestamps (seconds)
-    after_ts = int(today_midnight.timestamp())
-    before_ts = int(now.timestamp())
+    today_str = now.strftime("%Y/%m/%d")
 
-    # Gmail search query
-    query = f"after:{after_ts} before:{before_ts}"
+    query = f"after:{today_str}"
 
+    seen_ids = set()
     emails = []
 
     # Initial request
@@ -55,6 +53,10 @@ def fetch_emails_with_body(service, user_email):
         messages = response.get("messages", [])
 
         for msg in messages:
+            if msg["id"] in seen_ids:
+                continue
+            seen_ids.add(msg["id"])
+
             message = service.users().messages().get(
                 userId="me",
                 id=msg["id"],
