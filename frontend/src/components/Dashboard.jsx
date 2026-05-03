@@ -186,6 +186,7 @@ if (activePage === "dashboard") {
               </h1>
               {/*<p>Smart email classification using Rule-Based + Naive Bayes ML</p>*/}
             </div>
+            {activePage === "dashboard" && (
             <div className="header-actions">
               <button className="btn btn-outline" onClick={fetchEmails} disabled={loading}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -201,11 +202,13 @@ if (activePage === "dashboard") {
                 </svg>
                 {loading ? "Refreshing..." : "Refresh"}
               </button>
-            </div>
+              </div>
+              )}
           </div>
 
           {/* Stat Cards */}
-          <div className="stat-cards">
+          {activePage === "dashboard" && (
+  <div className="stat-cards">
             <StatCard
               icon='<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 7 10-7"/>'
               iconBg="#EDE9FE" iconColor="#6C3BFF"
@@ -236,7 +239,8 @@ if (activePage === "dashboard") {
               number={counts.others} label="Others"
               badge="Low Priority" badgeCls="priority-low"
             />
-          </div>
+            </div>
+)}
 
           {/* Email Table */}
           <div className="email-section">
