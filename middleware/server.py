@@ -23,7 +23,9 @@ import json
 import pandas as pd
 
 app = Flask(__name__, template_folder="../frontend")
-CORS(app, supports_credentials=True, origins="*")
+CORS(app, supports_credentials=True, origins=[
+    "https://recmailsense-1.onrender.com"
+])
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["SESSION_COOKIE_SECURE"] = False
 app.secret_key = "mailsense-secret"
@@ -40,7 +42,7 @@ os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # Only for local dev
 # -------------------------
 @app.route("/") #"/" this root, 
 def index():
-    FRONTEND_URL = os.getenv("FRONTEND_URL")
+    FRONTEND_URL = "https://your-frontend-url.onrender.com"
     return redirect(FRONTEND_URL)
 
 # -------------------------
