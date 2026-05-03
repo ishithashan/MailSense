@@ -12,3 +12,5 @@ scikit-learn
 joblib
 flask-cors
 google-api-python-client
+flask-session
+react-router-dom

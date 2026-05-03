@@ -7,6 +7,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from flask import Flask, session, jsonify, render_template, redirect, request, url_for
 from flask_cors import CORS #ADDED
+from flask_session import Session
 
 #from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
@@ -26,9 +27,17 @@ app = Flask(__name__, template_folder="../frontend")
 CORS(app, supports_credentials=True, origins=[
     "https://recmailsense-1.onrender.com"
 ])
+
+app.config["SECRET_KEY"] = "mailsense-secret"
+
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_USE_SIGNER"] = True
+
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["SESSION_COOKIE_SECURE"] = True
-app.secret_key = "mailsense-secret"
+
+Session(app)
 
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
