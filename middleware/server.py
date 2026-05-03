@@ -5,11 +5,14 @@ load_dotenv()
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from flask import Flask, redirect, request, session, url_for, jsonify
+from flask import Flask, session, jsonify, render_template, redirect, request, url_for
+from flask_cors import CORS #ADDED
+
 #from google_auth_oauthlib.flow import Flow
+from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
-# 🔹 Automation pipeline
+# Automation pipeline
 from automation.gmail_reader import fetch_emails_with_body
 from automation.excel_writer import save_emails_to_excel
 from automation.auth import get_flow, build_gmail_service
@@ -19,8 +22,10 @@ import os
 import json
 import pandas as pd
 
-
-app = Flask(__name__)
+app = Flask(__name__, template_folder="../frontend")
+CORS(app, supports_credentials=True, origins="*")
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = False
 app.secret_key = "mailsense-secret"
 
 SCOPES = [
@@ -33,15 +38,17 @@ os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # Only for local dev
 # -------------------------
 # Homepage
 # -------------------------
-@app.route("/")
+@app.route("/") #"/" this root, 
 def index():
-    return "MailSense Backend Running. Go to /login to authenticate Gmail."
+    FRONTEND_URL = os.getenv("FRONTEND_URL")
+    return redirect(FRONTEND_URL)
 
 # -------------------------
 # Login route
 # -------------------------
 @app.route("/login")
 def login():
+    session.clear()  # 🔥 FORCE RESET
     flow = get_flow()
 
     auth_url, state = flow.authorization_url(
@@ -56,18 +63,18 @@ def login():
 
     return redirect(auth_url)
 
-
 # -------------------------
 # OAuth callback
 # -------------------------
 @app.route("/oauth2callback")
 def oauth2callback():
+    if "state" not in session or "code_verifier" not in session:
+        return redirect(url_for("login"))  # 🔥 FIX
+
     state = session.get("state")
     code_verifier = session.get("code_verifier")
 
     flow = get_flow(state=state)
-
-    # ✅ Restore PKCE verifier
     flow.code_verifier = code_verifier
 
     flow.fetch_token(authorization_response=request.url)
@@ -78,7 +85,24 @@ def oauth2callback():
     service = build_gmail_service(creds)
     profile = service.users().getProfile(userId="me").execute()
 
-    return f"Authenticated as {profile['emailAddress']}<br>Go to <a href='/fetch_emails'>Fetch Emails</a>"
+    session["user_email"] = profile["emailAddress"]
+
+    FRONTEND_URL = os.getenv("FRONTEND_URL")
+
+    return redirect(FRONTEND_URL + "/main")
+
+# -------------------------
+# check auth route
+# -------------------------
+@app.route("/check_auth")
+def check_auth():
+    if "credentials" in session:
+        return jsonify({
+            "authenticated": True,
+            "user": session.get("user_email")
+        })
+    return jsonify({"authenticated": False}), 401
+
 # -------------------------
 # Fetch emails route
 # -------------------------
@@ -86,8 +110,10 @@ def oauth2callback():
 @app.route("/fetch_emails")
 def fetch_emails():
     creds_json = session.get("credentials")
+    # if not creds_json:
+    #     return redirect(url_for("login"))
     if not creds_json:
-        return redirect(url_for("login"))
+          return jsonify({"status": "unauthorized"}), 401
 
     creds = Credentials.from_authorized_user_info(json.loads(creds_json))
 
@@ -112,14 +138,21 @@ def fetch_emails():
     # Save emails to user's Sheets
     save_emails_to_excel(emails, creds)
 
+    #return jsonify({
+        #"status": "success",
+        #"user": user_email,
+        #"emails_processed": len(emails)
+    #})
     return jsonify({
-        "status": "success",
-        "user": user_email,
-        "emails_processed": len(emails)
+    "status": "success",
+    "user": user_email,
+    "emails_processed": len(emails),
+    "emails": emails   # 🔥 ADD THIS LINE
     })
 
 # -------------------------
 # Run Flask server
 # -------------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
