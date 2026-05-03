@@ -3,7 +3,6 @@ import base64
 from automation.body_cleaner import clean_email_body
 from ml.predict import classify_email
 from email.utils import parseaddr
-from datetime import timezone, timedelta
 
 # -------------------------
 # Base64 Decoder
@@ -32,8 +31,7 @@ def extract_body(payload):
 # Fetch emails (00:00 AM → login time)
 # -------------------------
 def fetch_emails_with_body(service, user_email):
-    IST = timezone(timedelta(hours=5, minutes=30))
-    now = datetime.now(IST)
+    now = datetime.now()
 
     # Today at 00:00 AM (local time)
     today_midnight = datetime.combine(now.date(), datetime.min.time())
@@ -77,14 +75,8 @@ def fetch_emails_with_body(service, user_email):
             date = ""
 
             if internal_date:
-                # Convert to IST datetime (already done)
-                IST = timezone(timedelta(hours=5, minutes=30))
-                dt = datetime.fromtimestamp(int(internal_date) / 1000, tz=timezone.utc).astimezone(IST)
-
-                # 🔥 STRICT FILTER: only today's emails
-                if dt.date() != now.date():
-                    continue
-                time = dt.strftime("%I:%M %p")
+                dt = datetime.fromtimestamp(int(internal_date) / 1000)
+                time = dt.strftime("%H:%M")
                 date = dt.strftime("%d %b")
 
             raw_body = extract_body(message["payload"])
@@ -164,6 +156,7 @@ def classify_by_sender(sender):
     if "forms-receipts-noreply@google.com" in email:
         return "Google Forms"
 
+<<<<<<< HEAD
     return None  # "General"
 
 #delete it later
@@ -219,3 +212,6 @@ def auto_label(subject, body, sender):
 
     # 🤷 Default
     return "Other"
+=======
+    return None  # "General"
+>>>>>>> 54f1477cbd07f69404cfc4f07319603badf3aa83
