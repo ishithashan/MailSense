@@ -1,6 +1,10 @@
 services:
   - type: web
-    name: mailsense-backend
+    name: mailsense
     env: python
-    buildCommand: ""
+    buildCommand: cd frontend && npm install && npm run build && cd .. && pip install -r requirements.txt
     startCommand: python run.py
+    # Optional but good:
+    envVars:
+      - key: RENDER
+        value: "true"
