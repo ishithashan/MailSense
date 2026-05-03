@@ -23,10 +23,16 @@ function getInitials(sender) {
   return name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
 }
 
-function formatCategory(cat) {
+/*function formatCategory(cat) {
   if (!cat) return "Others";
   if (cat === "GCR") return "GCR";
   return cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}*/
+function formatCategory(cat) {
+  if (!cat) return "Others";
+  if (cat === "GCR") return "GCR";
+  if (cat === "NPTEL") return "Nptel";
+  return cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
 }
 
 // ── Stat Card ─────────────────────────────────────────────
@@ -48,7 +54,7 @@ function StatCard({ icon, iconBg, iconColor, number, label, badge, badgeCls, ext
 }
 
 // ── Workflow ───────────────────────────────────────────────
-function WorkflowDiagram() {
+/*function WorkflowDiagram() {
   const steps = [
     {
       num: "1. Email Extraction",
@@ -111,7 +117,7 @@ function WorkflowDiagram() {
       </div>
     </div>
   );
-}
+}*/
 
 // ── Main Dashboard ────────────────────────────────────────
 function Dashboard() {
@@ -234,7 +240,7 @@ useEffect(() => {
           <div className="page-header">
             <div>
               <h1>Inbox Dashboard</h1>
-              <p>Smart email classification using Rule-Based + Naive Bayes ML</p>
+              {/*<p>Smart email classification using Rule-Based + Naive Bayes ML</p>*/}
             </div>
             <div className="header-actions">
               <button className="btn btn-outline" onClick={fetchEmails} disabled={loading}>
@@ -404,7 +410,7 @@ useEffect(() => {
           </div>
 
           {/* Workflow Diagram */}
-          <WorkflowDiagram />
+          {/*<WorkflowDiagram />*/}
         </div>
       </div>
     </div>

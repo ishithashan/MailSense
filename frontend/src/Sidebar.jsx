@@ -51,7 +51,7 @@ function Sidebar({ activePage, onNavigate, systemStatus }) {
         </svg>
       )
     },
-    {
+    /*{
       id: "analytics", label: "Analytics",
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -77,7 +77,7 @@ function Sidebar({ activePage, onNavigate, systemStatus }) {
           <line x1="12" y1="8" x2="12.01" y2="8"/>
         </svg>
       )
-    }
+    }*/
   ];
 
   return (

@@ -3,6 +3,7 @@ import base64
 from automation.body_cleaner import clean_email_body
 from ml.predict import classify_email
 from email.utils import parseaddr
+from datetime import timezone, timedelta
 
 # -------------------------
 # Base64 Decoder
@@ -75,9 +76,12 @@ def fetch_emails_with_body(service, user_email):
             date = ""
 
             if internal_date:
-                dt = datetime.fromtimestamp(int(internal_date) / 1000)
-                time = dt.strftime("%H:%M")
-                date = dt.strftime("%d %b")
+                #dt = datetime.fromtimestamp(int(internal_date) / 1000)
+                #time = dt.strftime("%H:%M")
+                IST = timezone(timedelta(hours=5, minutes=30))
+                dt = datetime.fromtimestamp(int(internal_date) / 1000, tz=timezone.utc).astimezone(IST)
+                time = dt.strftime("%I:%M %p")
+                #date = dt.strftime("%d %b")
 
             raw_body = extract_body(message["payload"])
             body = clean_email_body(raw_body)

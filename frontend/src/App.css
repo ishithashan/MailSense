@@ -325,6 +325,13 @@ input { font-family: inherit; outline: none; }
   height: 100vh;
   overflow: hidden;
 }
+.home-card h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: 32px;
+}
 
 /* ========== SIDEBAR ========== */
 .sidebar {
