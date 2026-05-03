@@ -106,7 +106,6 @@ def check_auth():
 
     return jsonify({"authenticated": False}), 401
 
-
 # -------------------------
 # Fetch emails route
 # -------------------------
