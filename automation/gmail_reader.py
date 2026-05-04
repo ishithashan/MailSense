@@ -17,13 +17,18 @@ def _decode_base64(data):
 def clean_html(body):
     import re
 
-    # Remove forwarded chain
+    # If HTML → DO NOT touch stars
+    if "<html" in body.lower() or "<table" in body.lower():
+        return body
+
+    # Plain text cleaning
     body = re.split(r"---------- Forwarded message ---------", body, flags=re.IGNORECASE)[0]
 
-    # Remove excessive blank lines
-    body = re.sub(r'\n\s*\n', '\n', body)
+    body = re.sub(r"\*(.*?)\*", r"\n\1\n", body)
+    body = body.replace("*", " ")  # Replace remaining stars with space
+    body = re.sub(r'\n\s*\n+', '\n\n', body)
 
-    return body
+    return body.strip()
 
 # -------------------------
 # Extract email body (recursive)
