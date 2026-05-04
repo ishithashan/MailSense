@@ -16,6 +16,7 @@ from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 # Automation pipeline
 from automation.gmail_reader import fetch_emails_with_body
+from automation.gmail_reader import clean_html
 from automation.excel_writer import save_emails_to_excel
 from automation.auth import get_flow, build_gmail_service
 from automation.pipeline import run_pipeline
@@ -236,7 +237,8 @@ def get_single_email(message_id):
                         return body
             return ""
 
-        body = extract_body(message["payload"])
+        raw_body = extract_body(message["payload"])
+        body = clean_html(raw_body)   # ✅ APPLY CLEANING HERE
 
         return jsonify({
             "status": "success",

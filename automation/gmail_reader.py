@@ -17,15 +17,16 @@ def _decode_base64(data):
 def clean_html(body):
     import re
 
-    # If HTML → DO NOT touch stars
-    if "<html" in body.lower() or "<table" in body.lower():
-        return body
-
-    # Plain text cleaning
+    # Remove forwarded chains
     body = re.split(r"---------- Forwarded message ---------", body, flags=re.IGNORECASE)[0]
 
+    # Convert *text* → newline format
     body = re.sub(r"\*(.*?)\*", r"\n\1\n", body)
-    body = body.replace("*", " ")  # Replace remaining stars with space
+
+    # Remove remaining stars
+    body = body.replace("*", "")
+
+    # Fix spacing
     body = re.sub(r'\n\s*\n+', '\n\n', body)
 
     return body.strip()
