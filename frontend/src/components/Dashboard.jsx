@@ -384,26 +384,51 @@ if (activePage === "dashboard") {
                 </tbody>
               </table>
             )}
-            {selectedEmail && (
-              <div className="email-modal">
-                <div className="email-content">
-                  <h3>{selectedEmail.subject}</h3>
-                  <p><b>From:</b> {selectedEmail.sender}</p>
-                  <hr />
-                  <div
-                    className="email-body"
-                    dangerouslySetInnerHTML={{ __html: emailBody }}
-                  />
+            {/* Email View Modal */}
+{selectedEmail && (
+  <div className="modal-overlay" onClick={() => { setSelectedEmail(null); setEmailBody(""); }}>
+    <div className="email-card-popup" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-header">
+        <div className="modal-header-left">
+          <div className="modal-avatar" style={{ background: avatarColor(emails.indexOf(selectedEmail)) }}>
+            {getInitials(selectedEmail.sender)[0]}
+          </div>
+          <div>
+            <h3>{selectedEmail.subject || "(No Subject)"}</h3>
+            <p className="modal-subtitle">From: <span>{selectedEmail.sender}</span></p>
+          </div>
+        </div>
+        <button className="close-icon-btn" onClick={() => { setSelectedEmail(null); setEmailBody(""); }}>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      
+      <div className="modal-body-container">
+        {emailBody ? (
+          <div 
+            className="email-body-content" 
+            dangerouslySetInnerHTML={{ __html: emailBody }} 
+          />
+        ) : (
+          <div className="loading-body">
+            <div className="spinner-small"></div>
+            <span>Loading content...</span>
+          </div>
+        )}
+      </div>
 
-                  <button onClick={() => {
-                    setSelectedEmail(null);
-                    setEmailBody("");
-                  }}>
-                    Close
-                  </button>
-                </div>
-              </div>
-            )}
+      <div className="modal-footer">
+        <button className="btn btn-outline" onClick={() => { setSelectedEmail(null); setEmailBody(""); }}>
+          Dismiss
+        </button>
+        <button className="btn btn-primary">Reply</button>
+      </div>
+    </div>
+  </div>
+)}
           </div>
         </div>
       </div>

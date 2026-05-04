@@ -46,17 +46,55 @@ function HomePage() {
         {/* Visual Preview / Dashboard Mockup */}
         <div className="hero-visual">
           <div className="mockup-card">
+            {/* Browser Header */}
             <div className="mockup-header">
-              <div className="dot red"></div>
-              <div className="dot yellow"></div>
-              <div className="dot green"></div>
+              <div className="dot-group">
+                <div className="dot red"></div>
+                <div className="dot yellow"></div>
+                <div className="dot green"></div>
+              </div>
+              <div className="mockup-search-bar">recmails.app/dashboard</div>
             </div>
+
+            {/* Simulated Dashboard Content */}
             <div className="mockup-body">
-              <div className="skeleton-line long"></div>
-              <div className="skeleton-line medium"></div>
-              <div className="skeleton-tag">Classified: Urgent</div>
+              {/* Email Row 1 */}
+              <div className="mockup-email-row active-row">
+                <div className="mockup-avatar purple"></div>
+                <div className="mockup-text-group">
+                  <div className="skeleton-line sm"></div>
+                  <div className="skeleton-line lg"></div>
+                </div>
+                <div className="skeleton-tag urgent">Placement</div>
+              </div>
+
+              {/* Email Row 2 */}
+              <div className="mockup-email-row">
+                <div className="mockup-avatar blue"></div>
+                <div className="mockup-text-group">
+                  <div className="skeleton-line sm"></div>
+                  <div className="skeleton-line md"></div>
+                </div>
+                <div className="skeleton-tag info">Academic</div>
+              </div>
+
+              {/* Email Row 3 */}
+              <div className="mockup-email-row">
+                <div className="mockup-avatar green"></div>
+                <div className="mockup-text-group">
+                  <div className="skeleton-line sm"></div>
+                  <div className="skeleton-line lg"></div>
+                </div>
+                <div className="skeleton-tag success">General</div>
+              </div>
+
+              {/* Floating Action Button Simulation */}
+              <div className="mockup-fab"></div>
             </div>
           </div>
+
+          {/* Decorative Background Blur */}
+          <div className="hero-blur-circle"></div>
         </div>
       </main>
     </div>

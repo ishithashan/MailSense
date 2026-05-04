@@ -925,3 +925,221 @@ input { font-family: inherit; outline: none; }
 .profile-options-btn:hover {
   color: white;
 }
+/* Modal Overlay - Blurs the background */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.7); /* Dark semi-transparent */
+  backdrop-filter: blur(4px); /* Modern blur effect */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* The Popup Card */
+.email-card-popup {
+  background: #ffffff;
+  width: 100%;
+  max-width: 650px;
+  max-height: 85vh;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  color: #1e293b;
+}
+
+.modal-header {
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.modal-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.25rem;
+  color: #0f172a;
+}
+
+.modal-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.modal-subtitle span {
+  color: #334155;
+  font-weight: 500;
+}
+
+.modal-body-container {
+  padding: 24px;
+  overflow-y: auto;
+  flex-grow: 1;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.email-body-content {
+  color: #334155;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: #f8fafc;
+}
+
+/* Close button style */
+.close-icon-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.close-icon-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Small Loading Spinner */
+.spinner-small {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 8px;
+}
+
+.loading-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #94a3b8;
+}
+/* Mockup Header Tweaks */
+.dot-group {
+  display: flex;
+  gap: 6px;
+}
+
+.mockup-search-bar {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 2px 12px;
+  font-size: 10px;
+  color: #64748b;
+  flex-grow: 0.5;
+  text-align: center;
+}
+
+/* Email Rows */
+.mockup-email-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: all 0.3s ease;
+}
+
+.active-row {
+  background: rgba(99, 102, 241, 0.05);
+  border-left: 3px solid #6366f1;
+}
+
+.mockup-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.purple { background: #818cf8; }
+.blue { background: #3b82f6; }
+.green { background: #10b981; }
+
+.mockup-text-group {
+  flex-grow: 1;
+}
+
+.skeleton-line {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-bottom: 6px;
+}
+
+.skeleton-line.sm { width: 30%; height: 6px; }
+.skeleton-line.md { width: 60%; height: 8px; }
+.skeleton-line.lg { width: 85%; height: 8px; }
+
+/* Tags */
+.skeleton-tag {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.urgent { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+.info { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+.success { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+
+/* Floating Element */
+.mockup-fab {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  background: #6366f1;
+  border-radius: 50%;
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+}
+
+/* Background Effect */
+.hero-blur-circle {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: rgba(99, 102, 241, 0.15);
+  filter: blur(80px);
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
