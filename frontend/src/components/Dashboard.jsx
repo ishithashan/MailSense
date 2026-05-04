@@ -62,6 +62,13 @@ function Dashboard() {
   const [emailBody, setEmailBody] = useState("");
   const [starredEmails, setStarredEmails] = useState(new Set());
 
+  // Utility to strip HTML tags for snippet generation
+  const stripHTML = (html) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || div.innerText || "";
+};
+
   // Toggle star for an email
   const toggleStar = (emailId) => {
     setStarredEmails((prev) => {
@@ -353,7 +360,8 @@ if (activePage === "dashboard") {
                           <td className="subject-cell">
                             <div className="subject-main">{email.subject || "(No Subject)"}</div>
                             <div className="subject-snippet">
-                              {email.body?.slice(0, 60) + (email.body?.length > 60 ? "..." : "") || ""}
+                              {/*{email.body?.slice(0, 60) + (email.body?.length > 60 ? "..." : "") || ""}*/}
+                              {stripHTML(email.body)?.slice(0, 60)}
                             </div>
                           </td>
                           <td>

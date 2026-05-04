@@ -159,7 +159,35 @@ def fetch_emails():
 # -------------------------
 # Get single email body
 # -------------------------
-@app.route("/api/email/<message_id>")
+@app.route("/api/email/<email_id>")
+def get_single_email(email_id):
+    creds_json = session.get("credentials")
+
+    if not creds_json:
+        return jsonify({"status": "unauthorized"}), 401
+
+    try:
+        creds = Credentials.from_authorized_user_info(json.loads(creds_json))
+        service = build_gmail_service(creds)
+
+        message = service.users().messages().get(
+            userId="me",
+            id=email_id,
+            format="full"
+        ).execute()
+
+        from automation.gmail_reader import extract_body
+
+        raw_body = extract_body(message["payload"])
+
+        return jsonify({
+            "status": "success",
+            "body": raw_body   # IMPORTANT: send HTML directly
+        })
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+"""@app.route("/api/email/<message_id>")
 def get_single_email(message_id):
     creds_json = session.get("credentials")
 
@@ -205,7 +233,7 @@ def get_single_email(message_id):
         })
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({"status": "error", "message": str(e)}), 500"""
 
 # -------------------------
 # Homepage

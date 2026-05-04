@@ -29,39 +29,33 @@ def clean_html(body):
 # Extract email body (recursive)
 # -------------------------
 def extract_body(payload):
-    import base64
+    html_body = ""
+    text_body = ""
 
-    html_body = None
-    text_body = None
-
-    def walk(parts):
-        nonlocal html_body, text_body
-
-        for part in parts:
-            mime = part.get("mimeType", "")
-            body = part.get("body", {}).get("data")
-
-            if mime == "text/html" and body:
-                html_body = base64.urlsafe_b64decode(body).decode("utf-8", errors="ignore")
-
-            elif mime == "text/plain" and body:
-                text_body = base64.urlsafe_b64decode(body).decode("utf-8", errors="ignore")
-
-            if "parts" in part:
-                walk(part["parts"])
-
-    # start walking
     if "parts" in payload:
-        walk(payload["parts"])
+        for part in payload["parts"]:
+            mime = part.get("mimeType")
+
+            if mime == "text/html" and part.get("body", {}).get("data"):
+                html_body = _decode_base64(part["body"]["data"])
+
+            elif mime == "text/plain" and part.get("body", {}).get("data"):
+                text_body = _decode_base64(part["body"]["data"])
+
+            else:
+                inner_html = extract_body(part)
+                if inner_html:
+                    html_body = inner_html
+
     else:
-        # single-part email
         if payload.get("body", {}).get("data"):
-            return base64.urlsafe_b64decode(
-                payload["body"]["data"]
-            ).decode("utf-8", errors="ignore")
+            data = _decode_base64(payload["body"]["data"])
+            if payload.get("mimeType") == "text/html":
+                return data
+            else:
+                return data
 
-    return html_body or text_body or ""
-
+    return html_body if html_body else text_body
 
 # -------------------------
 # Fetch emails (00:00 AM → login time)

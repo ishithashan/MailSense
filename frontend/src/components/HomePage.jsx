@@ -4,7 +4,6 @@ function HomePage() {
   return (
     <div className="home-container">
       <br></br>
-      <br></br>
       {/* Navigation Bar */}
       <nav className="home-nav">
         <div className="logo-group">
@@ -43,6 +42,8 @@ function HomePage() {
             </a>
             
             <br></br>
+            <br></br>
+            <br></br>
             <span className="trust-text">No credit card required.</span>
           </div>
         </div>
@@ -57,7 +58,7 @@ function HomePage() {
                 <div className="dot yellow"></div>
                 <div className="dot green"></div>
               </div>
-              <div className="mockup-search-bar">recmails.app/dashboard</div>
+              <div className="mockup-search-bar">recmails/dashboard</div>
             </div>
 
             {/* Simulated Dashboard Content */}
