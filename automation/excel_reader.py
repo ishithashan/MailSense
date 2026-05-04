@@ -5,7 +5,7 @@ def read_emails_from_sheet(credentials, spreadsheet_id):
 
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheet_id,
-        range="Sheet1!A2:H"
+        range="Sheet1!A2:I"
     ).execute()
 
     rows = result.get("values", [])
