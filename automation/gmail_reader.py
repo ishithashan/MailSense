@@ -3,6 +3,7 @@ import base64
 from automation.body_cleaner import clean_email_body
 from ml.predict import classify_email
 from email.utils import parseaddr
+from datetime import timezone, timedelta
 
 # -------------------------
 # Base64 Decoder
@@ -34,14 +35,8 @@ def fetch_emails_with_body(service, user_email):
     now = datetime.now()
 
     # Today at 00:00 AM (local time)
-    today_midnight = datetime.combine(now.date(), datetime.min.time())
-
-    # Convert to UNIX timestamps (seconds)
-    after_ts = int(today_midnight.timestamp())
-    before_ts = int(now.timestamp())
-
-    # Gmail search query
-    query = f"after:{after_ts} before:{before_ts}"
+    today_str = datetime.now().strftime("%Y/%m/%d")
+    query = f"after:{today_str}"
 
     emails = []
 
@@ -75,8 +70,14 @@ def fetch_emails_with_body(service, user_email):
             date = ""
 
             if internal_date:
-                dt = datetime.fromtimestamp(int(internal_date) / 1000)
-                time = dt.strftime("%H:%M")
+                IST = timezone(timedelta(hours=5, minutes=30))
+
+                dt = datetime.fromtimestamp(
+                    int(internal_date) / 1000,
+                    tz=timezone.utc
+                ).astimezone(IST)
+
+                time = dt.strftime("%I:%M %p")   # 10:30 AM format
                 date = dt.strftime("%d %b")
 
             raw_body = extract_body(message["payload"])
