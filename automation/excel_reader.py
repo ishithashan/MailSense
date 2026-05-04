@@ -13,15 +13,15 @@ def read_emails_from_sheet(credentials, spreadsheet_id):
     emails = []
     for row in rows:
         emails.append({
-            "id": row[0],          # ✅ ADD THIS
-            "user_email": row[0],
-            "sender": row[1],
-            "subject": row[2],
-            "time": row[3],
-            "date": row[4],
-            "body": row[5],
-            "status": row[6],
-            "category": row[7]
+            "id": row[0],          # ✅ NEW
+            "user_email": row[1],
+            "sender": row[2],
+            "subject": row[3],
+            "time": row[4],
+            "date": row[5],
+            "body": row[6],
+            "status": row[7],
+            "category": row[8]
         })
 
     return emails
