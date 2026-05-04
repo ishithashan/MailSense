@@ -3,6 +3,8 @@ import "../App.css";
 function HomePage() {
   return (
     <div className="home-container">
+      <br></br>
+      <br></br>
       {/* Navigation Bar */}
       <nav className="home-nav">
         <div className="logo-group">
@@ -25,7 +27,7 @@ function HomePage() {
             Tame your inbox with <span className="text-gradient">Intelligence.</span>
           </h1>
           <p className="hero-subtitle">
-            RECMails automatically categorizes, prioritizes, and summarizes your 
+            RECMails automatically categorizes, prioritizes and summarizes your 
             emails so you can focus on what actually matters.
           </p>
 
@@ -39,6 +41,8 @@ function HomePage() {
               </svg>
               Get Started with Google
             </a>
+            
+            <br></br>
             <span className="trust-text">No credit card required.</span>
           </div>
         </div>

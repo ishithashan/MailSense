@@ -1143,3 +1143,14 @@ input { font-family: inherit; outline: none; }
   left: 50%;
   transform: translate(-50%, -50%);
 }
+.star-btn svg {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), fill 0.2s ease;
+}
+
+.star-btn.is-starred svg {
+  transform: scale(1.2);
+}
+
+.star-btn:hover svg {
+  color: #F59E0B; /* Turns yellow-gold on hover even if not clicked */
+}

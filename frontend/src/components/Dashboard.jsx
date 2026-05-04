@@ -60,6 +60,20 @@ function Dashboard() {
   const [userEmail, setUserEmail]     = useState("");
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [emailBody, setEmailBody] = useState("");
+  const [starredEmails, setStarredEmails] = useState(new Set());
+
+  // Toggle star for an email
+  const toggleStar = (emailId) => {
+    setStarredEmails((prev) => {
+      const newStars = new Set(prev);
+      if (newStars.has(emailId)) {
+        newStars.delete(emailId);
+      } else {
+        newStars.add(emailId);
+      }
+      return newStars;
+    });
+  };
 
   // Fetch emails from Flask backend
   const fetchEmails = useCallback(async () => {
@@ -92,10 +106,6 @@ function Dashboard() {
       setLoading(false);
     }
   }, []);
-
-//  useEffect(() => {
-//   fetchEmails();
-// }, [fetchEmails]);
 
 useEffect(() => {
   const loadEmails = async () => {
@@ -366,13 +376,29 @@ if (activePage === "dashboard") {
                                 }}
                               >
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                  <circle cx="12" cy="12" r="3"/>
+                                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                  <circle cx="12" cy="12" r="3" />
                                 </svg>
                               </button>
-                              <button className="action-btn" title="Star email">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+
+                              <button 
+                                className={`action-btn star-btn ${starredEmails.has(email.id) ? "is-starred" : ""}`} 
+                                title="Star email"
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevents triggering row clicks if you have them
+                                  toggleStar(email.id);
+                                }}
+                              >
+                                <svg 
+                                  viewBox="0 0 24 24" 
+                                  strokeWidth="2" 
+                                  strokeLinecap="round" 
+                                  strokeLinejoin="round"
+                                  /* Logic for fill and stroke color */
+                                  fill={starredEmails.has(email.id) ? "#F59E0B" : "none"} 
+                                  stroke={starredEmails.has(email.id) ? "#F59E0B" : "currentColor"}
+                                >
+                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                                 </svg>
                               </button>
                             </div>
@@ -424,7 +450,6 @@ if (activePage === "dashboard") {
         <button className="btn btn-outline" onClick={() => { setSelectedEmail(null); setEmailBody(""); }}>
           Dismiss
         </button>
-        <button className="btn btn-primary">Reply</button>
       </div>
     </div>
   </div>

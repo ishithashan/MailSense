@@ -15,9 +15,14 @@ def _decode_base64(data):
 # Basic HTML cleaner (removing forwarded chains)
 # -------------------------
 def clean_html(body):
-    # remove forwarded chains (basic)
     import re
-    body = re.split(r"Forwarded message", body, flags=re.IGNORECASE)[0]
+
+    # Remove forwarded chain
+    body = re.split(r"---------- Forwarded message ---------", body, flags=re.IGNORECASE)[0]
+
+    # Remove excessive blank lines
+    body = re.sub(r'\n\s*\n', '\n', body)
+
     return body
 
 # -------------------------
@@ -26,27 +31,36 @@ def clean_html(body):
 def extract_body(payload):
     import base64
 
-    # ✅ Prefer HTML first
-    if payload.get("mimeType") == "text/html" and payload.get("body", {}).get("data"):
-        return base64.urlsafe_b64decode(
-            payload["body"]["data"]
-        ).decode("utf-8", errors="ignore")
+    html_body = None
+    text_body = None
 
-    # fallback to plain text
-    if payload.get("mimeType") == "text/plain" and payload.get("body", {}).get("data"):
-        return base64.urlsafe_b64decode(
-            payload["body"]["data"]
-        ).decode("utf-8", errors="ignore")
+    def walk(parts):
+        nonlocal html_body, text_body
 
-    # recursive
+        for part in parts:
+            mime = part.get("mimeType", "")
+            body = part.get("body", {}).get("data")
+
+            if mime == "text/html" and body:
+                html_body = base64.urlsafe_b64decode(body).decode("utf-8", errors="ignore")
+
+            elif mime == "text/plain" and body:
+                text_body = base64.urlsafe_b64decode(body).decode("utf-8", errors="ignore")
+
+            if "parts" in part:
+                walk(part["parts"])
+
+    # start walking
     if "parts" in payload:
-        for part in payload["parts"]:
-            body = extract_body(part)
-            body = clean_html(body)
-            if body:
-                return body
+        walk(payload["parts"])
+    else:
+        # single-part email
+        if payload.get("body", {}).get("data"):
+            return base64.urlsafe_b64decode(
+                payload["body"]["data"]
+            ).decode("utf-8", errors="ignore")
 
-    return ""
+    return html_body or text_body or ""
 
 
 # -------------------------
@@ -102,7 +116,6 @@ def fetch_emails_with_body(service, user_email):
                 date = dt.strftime("%d %b")
 
             raw_body = extract_body(message["payload"])
-            body = clean_email_body(raw_body)
             body = clean_html(body)
 
             # Step 1: Rule-based

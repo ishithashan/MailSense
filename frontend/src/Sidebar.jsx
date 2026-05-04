@@ -20,7 +20,7 @@ function Sidebar({ activePage, onNavigate, userEmail }) {
   ];
 
   const handleLogout = () => {
-    window.location.href = "/api/login"; // forces fresh login
+    window.location.href = "/"; // forces fresh login
   };
 
   return (
