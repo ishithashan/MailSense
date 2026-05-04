@@ -58,6 +58,8 @@ function Dashboard() {
   const [search, setSearch]           = useState("");
   const [lastSync, setLastSync]       = useState("--:--");
   const [userEmail, setUserEmail]     = useState("");
+  const [selectedEmail, setSelectedEmail] = useState(null);
+  const [emailBody, setEmailBody] = useState("");
 
   // Fetch emails from Flask backend
   const fetchEmails = useCallback(async () => {
@@ -136,7 +138,7 @@ if (activePage === "dashboard") {
     return matchFilter && matchSearch;
   });
 }
-
+ // Inbox page shows all emails, ignoring category filter
   const pills = ["All", "Placement", "Academic", "Notices", "Others"];
   const pillActiveClass = (p) => {
     if (filter !== p) return "";
@@ -146,6 +148,22 @@ if (activePage === "dashboard") {
 
   const avatarColors = ["#6C3BFF","#10B981","#3B82F6","#F59E0B","#EF4444","#DB2777","#7C3AED","#0EA5E9"];
   const avatarColor = (i) => avatarColors[i % avatarColors.length];
+
+  const fetchSingleEmail = async (id) => {
+  try {
+    const res = await fetch(`/api/email/${id}`, {
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (data.status === "success") {
+      setEmailBody(data.body);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   return (
     <div className="app-layout">
@@ -339,7 +357,14 @@ if (activePage === "dashboard") {
                           <td style={{ fontSize: "13px", color: "#6B7280" }}>{receivedAt}</td>
                           <td>
                             <div className="action-cell">
-                              <button className="action-btn" title="View email">
+                              <button
+                                className="action-btn"
+                                title="View email"
+                                onClick={() => {
+                                  setSelectedEmail(email);
+                                  fetchSingleEmail(email.id);
+                                }}
+                              >
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                                   <circle cx="12" cy="12" r="3"/>
@@ -358,6 +383,25 @@ if (activePage === "dashboard") {
                   )}
                 </tbody>
               </table>
+            )}
+            {selectedEmail && (
+              <div className="email-modal">
+                <div className="email-content">
+                  <h3>{selectedEmail.subject}</h3>
+                  <p><b>From:</b> {selectedEmail.sender}</p>
+                  <hr />
+                  <div className="email-body">
+                    {emailBody || "Loading..."}
+                  </div>
+
+                  <button onClick={() => {
+                    setSelectedEmail(null);
+                    setEmailBody("");
+                  }}>
+                    Close
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>

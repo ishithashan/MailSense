@@ -50,14 +50,25 @@ function Sidebar({ activePage, onNavigate, userEmail }) {
 
       {/* Bottom User Profile */}
       <div className="sidebar-footer">
-        <div className="user-profile">
-          <div className="avatar">
-            {userEmail ? userEmail[0].toUpperCase() : "U"}
+        <div className="user-profile-card">
+          <div className="avatar-wrapper">
+            {/* If you eventually get a profile pic URL, you can swap this for an <img> */}
+            <div className="avatar-circle">
+              {userEmail ? userEmail[0].toUpperCase() : "U"}
+              <div className="status-indicator"></div>
+            </div>
           </div>
+          
           <div className="user-info">
-            <div className="email">{userEmail}</div>
-            <div className="plan">Student Plan</div>
+            <span className="user-name">{userEmail?.split('@')[0] || "User"}</span>
+            <span className="user-email">{userEmail || "loading..."}</span>
           </div>
+
+          <button className="profile-options-btn" title="Account Settings">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+            </svg>
+          </button>
         </div>
       </div>
     </aside>

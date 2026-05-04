@@ -156,49 +156,56 @@ def fetch_emails():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-        """
-@app.route("/api/fetch_emails")
-def fetch_emails():
+# -------------------------
+# Get single email body
+# -------------------------
+@app.route("/api/email/<message_id>")
+def get_single_email(message_id):
     creds_json = session.get("credentials")
-    # if not creds_json:
-    #     return redirect(url_for("login"))
+
     if not creds_json:
-          return jsonify({"status": "unauthorized"}), 401
+        return jsonify({"status": "unauthorized"}), 401
 
     creds = Credentials.from_authorized_user_info(json.loads(creds_json))
 
-    # 🔥 Auto-refresh if expired
+    # Refresh if expired
     if creds and creds.expired and creds.refresh_token:
         creds.refresh(Request())
         session["credentials"] = creds.to_json()
 
     service = build_gmail_service(creds)
 
-    # Get logged-in user email
-    profile = service.users().getProfile(userId="me").execute()
-    user_email = profile.get("emailAddress")
+    try:
+        message = service.users().messages().get(
+            userId="me",
+            id=message_id,
+            format="full"
+        ).execute()
 
-    # Fetch emails
-    emails = fetch_emails_with_body(
-        service,
-        user_email=user_email,
-        #max_results=30  # Limit for testing; remove or increase in production
-    )
+        # Extract body
+        def extract_body(payload):
+            if payload.get("body", {}).get("data"):
+                import base64
+                return base64.urlsafe_b64decode(
+                    payload["body"]["data"]
+                ).decode("utf-8", errors="ignore")
 
-    # Save emails to user's Sheets
-    save_emails_to_excel(emails, creds)
+            if "parts" in payload:
+                for part in payload["parts"]:
+                    body = extract_body(part)
+                    if body:
+                        return body
+            return ""
 
-    #return jsonify({
-        #"status": "success",
-        #"user": user_email,
-        #"emails_processed": len(emails)
-    #})
-    return jsonify({
-    "status": "success",
-    "user": user_email,
-    "emails_processed": len(emails),
-    "emails": emails   # 🔥 ADD THIS LINE
-    })"""
+        body = extract_body(message["payload"])
+
+        return jsonify({
+            "status": "success",
+            "body": body
+        })
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 # -------------------------
 # Homepage

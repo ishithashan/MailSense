@@ -1,86 +1,64 @@
-/*function HomePage() {
-  return (
-    <div className="home-page">
-      <div className="home-card">
-        <div className="home-logo">
-          <div className="home-logo-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="4" width="20" height="16" rx="2"/>
-              <path d="M2 8l10 7 10-7"/>
-            </svg>
-          </div>
-          <span className="home-logo-text">RECMails</span>
-        </div>
-
-        <h2>Smart Email Classification</h2>
-        <p>
-          Automatically fetch, classify, and organize your college emails
-          using Rule-Based logic and Naive Bayes ML.
-        </p>
-
-        <div className="home-features">
-          <div className="home-feature">
-            <div className="home-feature-dot" />
-            Gmail API integration with OAuth 2.0
-          </div>
-          <div className="home-feature">
-            <div className="home-feature-dot" />
-            Hybrid Rule-Based + Naive Bayes classification
-          </div>
-          <div className="home-feature">
-            <div className="home-feature-dot" />
-            Auto-saves to Google Sheets
-          </div>
-          <div className="home-feature">
-            <div className="home-feature-dot" />
-            Placement, Academic, Notices &amp; more
-          </div>
-        </div>
-
-        <a href="/api/login" target="_self" className="btn-google">
-        
-          <svg viewBox="0 0 24 24" fill="white">
-            <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
-          </svg>
-          Sign in with Google
-        </a>
-      </div>
-    </div>
-  );
-}
-
-export default HomePage;*/
 import "../App.css";
 
 function HomePage() {
   return (
-    <div className="home-page">
-      <div className="home-card" style={{ padding: "48px 44px", maxWidth: "380px" }}>
-        
-        {/* Logo */}
-        <div className="home-logo">
-          <div className="home-logo-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"
-              strokeLinecap="round" strokeLinejoin="round">
+    <div className="home-container">
+      {/* Navigation Bar */}
+      <nav className="home-nav">
+        <div className="logo-group">
+          <div className="logo-icon-small">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <rect x="2" y="4" width="20" height="16" rx="2"/>
               <path d="M2 8l10 7 10-7"/>
             </svg>
           </div>
-          <span className="home-logo-text">RECMails</span>
+          <span className="logo-text">RECMails</span>
+        </div>
+        <a href="/api/login" className="nav-login-btn">Sign In</a>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="hero-section">
+        <div className="hero-content">
+          <div className="badge">New: AI-Powered Classification 2.0</div>
+          <h1 className="hero-title">
+            Tame your inbox with <span className="text-gradient">Intelligence.</span>
+          </h1>
+          <p className="hero-subtitle">
+            RECMails automatically categorizes, prioritizes, and summarizes your 
+            emails so you can focus on what actually matters.
+          </p>
+
+          <div className="cta-group">
+            <a href="/api/login" className="btn-google-large">
+              <svg viewBox="0 0 24 24" width="20" height="20">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Get Started with Google
+            </a>
+            <span className="trust-text">No credit card required.</span>
+          </div>
         </div>
 
-        {/* Title only */}
-        <h2 style={{ marginBottom: "32px" }}>Email Classification</h2>
-
-        {/* Sign in button */}
-        <a href="/api/login" target="_self" className="btn-google">
-          <svg viewBox="0 0 24 24" fill="white" width="18" height="18">
-            <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
-          </svg>
-          Sign in with Google
-        </a>
-
-      </div>
+        {/* Visual Preview / Dashboard Mockup */}
+        <div className="hero-visual">
+          <div className="mockup-card">
+            <div className="mockup-header">
+              <div className="dot red"></div>
+              <div className="dot yellow"></div>
+              <div className="dot green"></div>
+            </div>
+            <div className="mockup-body">
+              <div className="skeleton-line long"></div>
+              <div className="skeleton-line medium"></div>
+              <div className="skeleton-tag">Classified: Urgent</div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

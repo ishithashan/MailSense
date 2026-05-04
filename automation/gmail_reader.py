@@ -91,6 +91,7 @@ def fetch_emails_with_body(service, user_email):
                 category = classify_email(subject, body)
 
             emails.append({
+                "id": msg["id"],   # 🔥 ADD THIS (CRITICAL)
                 "user_email": user_email,
                 "sender": sender,
                 "subject": subject,
