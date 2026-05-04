@@ -11,17 +11,38 @@ from datetime import timezone, timedelta
 def _decode_base64(data):
     return base64.urlsafe_b64decode(data).decode("utf-8", errors="ignore")
 
+# -------------------------
+# Basic HTML cleaner (removing forwarded chains)
+# -------------------------
+def clean_html(body):
+    # remove forwarded chains (basic)
+    import re
+    body = re.split(r"Forwarded message", body, flags=re.IGNORECASE)[0]
+    return body
 
 # -------------------------
 # Extract email body (recursive)
 # -------------------------
 def extract_body(payload):
-    if payload.get("body", {}).get("data"):
-        return _decode_base64(payload["body"]["data"])
+    import base64
 
+    # ✅ Prefer HTML first
+    if payload.get("mimeType") == "text/html" and payload.get("body", {}).get("data"):
+        return base64.urlsafe_b64decode(
+            payload["body"]["data"]
+        ).decode("utf-8", errors="ignore")
+
+    # fallback to plain text
+    if payload.get("mimeType") == "text/plain" and payload.get("body", {}).get("data"):
+        return base64.urlsafe_b64decode(
+            payload["body"]["data"]
+        ).decode("utf-8", errors="ignore")
+
+    # recursive
     if "parts" in payload:
         for part in payload["parts"]:
             body = extract_body(part)
+            body = clean_html(body)
             if body:
                 return body
 
@@ -82,6 +103,7 @@ def fetch_emails_with_body(service, user_email):
 
             raw_body = extract_body(message["payload"])
             body = clean_email_body(raw_body)
+            body = clean_html(body)
 
             # Step 1: Rule-based
             category = classify_by_sender(sender)

@@ -390,9 +390,10 @@ if (activePage === "dashboard") {
                   <h3>{selectedEmail.subject}</h3>
                   <p><b>From:</b> {selectedEmail.sender}</p>
                   <hr />
-                  <div className="email-body">
-                    {emailBody || "Loading..."}
-                  </div>
+                  <div
+                    className="email-body"
+                    dangerouslySetInnerHTML={{ __html: emailBody }}
+                  />
 
                   <button onClick={() => {
                     setSelectedEmail(null);
