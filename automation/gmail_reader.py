@@ -29,33 +29,29 @@ def clean_html(body):
 # Extract email body (recursive)
 # -------------------------
 def extract_body(payload):
-    html_body = ""
-    text_body = ""
+    import base64
 
+    # ✅ Prefer HTML first
+    if payload.get("mimeType") == "text/html" and payload.get("body", {}).get("data"):
+        return base64.urlsafe_b64decode(
+            payload["body"]["data"]
+        ).decode("utf-8", errors="ignore")
+
+    # fallback to plain text
+    if payload.get("mimeType") == "text/plain" and payload.get("body", {}).get("data"):
+        return base64.urlsafe_b64decode(
+            payload["body"]["data"]
+        ).decode("utf-8", errors="ignore")
+
+    # recursive
     if "parts" in payload:
         for part in payload["parts"]:
-            mime = part.get("mimeType")
+            body = extract_body(part)
+            body = clean_html(body)
+            if body:
+                return body
 
-            if mime == "text/html" and part.get("body", {}).get("data"):
-                html_body = _decode_base64(part["body"]["data"])
-
-            elif mime == "text/plain" and part.get("body", {}).get("data"):
-                text_body = _decode_base64(part["body"]["data"])
-
-            else:
-                inner_html = extract_body(part)
-                if inner_html:
-                    html_body = inner_html
-
-    else:
-        if payload.get("body", {}).get("data"):
-            data = _decode_base64(payload["body"]["data"])
-            if payload.get("mimeType") == "text/html":
-                return data
-            else:
-                return data
-
-    return html_body if html_body else text_body
+    return ""
 
 # -------------------------
 # Fetch emails (00:00 AM → login time)
@@ -110,7 +106,7 @@ def fetch_emails_with_body(service, user_email):
                 date = dt.strftime("%d %b")
 
             raw_body = extract_body(message["payload"])
-            body = clean_html(body)
+            body = clean_html(raw_body)
 
             # Step 1: Rule-based
             category = classify_by_sender(sender)

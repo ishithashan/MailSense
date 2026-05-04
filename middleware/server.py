@@ -160,7 +160,7 @@ def fetch_emails():
 # Get single email body
 # -------------------------
 @app.route("/api/email/<email_id>")
-def get_single_email(email_id):
+"""def get_single_email(email_id):
     creds_json = session.get("credentials")
 
     if not creds_json:
@@ -186,8 +186,8 @@ def get_single_email(email_id):
         })
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-"""@app.route("/api/email/<message_id>")
+        return jsonify({"status": "error", "message": str(e)}), 500"""
+@app.route("/api/email/<message_id>")
 def get_single_email(message_id):
     creds_json = session.get("credentials")
 
@@ -233,8 +233,8 @@ def get_single_email(message_id):
         })
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500"""
-
+        return jsonify({"status": "error", "message": str(e)}), 500
+        
 # -------------------------
 # Homepage
 # -------------------------
