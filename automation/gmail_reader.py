@@ -17,16 +17,27 @@ def _decode_base64(data):
 def clean_html(body):
     import re
 
-    # Remove forwarded chains
+    # If HTML → return as-is
+    if "<html" in body.lower() or "<table" in body.lower():
+        return body
+
+    # Remove forwarded chain
     body = re.split(r"---------- Forwarded message ---------", body, flags=re.IGNORECASE)[0]
 
-    # Convert *text* → newline format
+    # 🔥 REMOVE STARS
     body = re.sub(r"\*(.*?)\*", r"\n\1\n", body)
-
-    # Remove remaining stars
     body = body.replace("*", "")
 
-    # Fix spacing
+    # 🔥 FIX BULLETS → newline before "-"
+    body = re.sub(r"\s-\s", "\n- ", body)
+
+    # 🔥 FIX sentences → newline after period
+    body = re.sub(r"\.\s+", ".\n", body)
+
+    # 🔥 FIX colons → break after headings
+    body = re.sub(r":\s*", ":\n", body)
+
+    # 🔥 REMOVE extra spaces/newlines
     body = re.sub(r'\n\s*\n+', '\n\n', body)
 
     return body.strip()
