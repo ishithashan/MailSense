@@ -144,7 +144,17 @@ def fetch_emails():
             return jsonify({"status": "error", "message": "User email not found"}), 400
 
         # 🔥 RUN FULL PIPELINE
-        emails = run_pipeline(creds_json, user_email)
+        # First update Excel
+        run_pipeline(creds_json, user_email)
+
+        # Then READ from Excel
+        from automation.excel_reader import read_emails_from_sheet
+        from automation.excel_writer import get_or_create_sheet
+
+        creds = Credentials.from_authorized_user_info(json.loads(creds_json))
+        spreadsheet_id = get_or_create_sheet(creds)
+
+        emails = read_emails_from_sheet(creds, spreadsheet_id)
 
         return jsonify({
             "status": "success",
@@ -159,8 +169,9 @@ def fetch_emails():
 # -------------------------
 # Get single email body
 # -------------------------
+"""
 @app.route("/api/email/<email_id>")
-"""def get_single_email(email_id):
+def get_single_email(email_id):
     creds_json = session.get("credentials")
 
     if not creds_json:
