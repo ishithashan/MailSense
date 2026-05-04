@@ -3,7 +3,7 @@ from googleapiclient.errors import HttpError
 from automation.auth import build_sheets_service
 
 SHEET_TITLE = "RECMailSense_Emails"
-HEADERS = ["user_email", "sender", "subject", "time", "date", "body", "status", "category"]
+HEADERS = ["id", "user_email", "sender", "subject", "time", "date", "body", "status", "category"]
 
 def get_or_create_sheet(credentials):
     """
@@ -94,6 +94,7 @@ def save_emails_to_excel(emails, credentials):
     rows = []
     for email in emails:
         rows.append([
+            email.get("id", ""),   # ✅ ADD THIS
             email.get("user_email", ""),
             email.get("sender", ""),
             email.get("subject", ""),
