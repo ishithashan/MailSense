@@ -1,3 +1,8 @@
+import google.generativeai as genai
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+
 import sys
 from dotenv import load_dotenv
 load_dotenv()
@@ -170,35 +175,6 @@ def fetch_emails():
 # -------------------------
 # Get single email body
 # -------------------------
-"""
-@app.route("/api/email/<email_id>")
-def get_single_email(email_id):
-    creds_json = session.get("credentials")
-
-    if not creds_json:
-        return jsonify({"status": "unauthorized"}), 401
-
-    try:
-        creds = Credentials.from_authorized_user_info(json.loads(creds_json))
-        service = build_gmail_service(creds)
-
-        message = service.users().messages().get(
-            userId="me",
-            id=email_id,
-            format="full"
-        ).execute()
-
-        from automation.gmail_reader import extract_body
-
-        raw_body = extract_body(message["payload"])
-
-        return jsonify({
-            "status": "success",
-            "body": raw_body   # IMPORTANT: send HTML directly
-        })
-
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500"""
 @app.route("/api/email/<message_id>")
 def get_single_email(message_id):
     creds_json = session.get("credentials")
@@ -247,7 +223,85 @@ def get_single_email(message_id):
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-        
+
+# ─────────────────────────────────────────────────────────────────
+# AI Email Summary route
+# ─────────────────────────────────────────────────────────────────
+@app.route("/api/summarize", methods=["POST"])
+def summarize_email():
+    if "credentials" not in session:
+        return jsonify({"status": "unauthorized"}), 401
+
+    data = request.get_json()
+    subject  = data.get("subject", "")
+    body     = data.get("body", "")
+    category = data.get("category", "General")
+
+    if not body and not subject:
+        return jsonify({"status": "error", "message": "No content to summarize"}), 400
+
+    # Truncate body so it fits easily in the prompt
+    truncated_body = body[:4000] if len(body) > 4000 else body
+
+    prompt = f"""You are a smart email assistant for a student.
+Summarize this email in 3-4 concise bullet points (plain text, no markdown symbols).
+Focus on: what the email is about, any deadlines or action items, and why it matters.
+Keep it short and clear — the student should understand in 5 seconds.
+
+Email Category: {category}
+Subject: {subject}
+Body:
+{truncated_body}
+
+Return ONLY the bullet points, each on its own line starting with •"""
+
+    try:
+        response = gemini_model.generate_content(prompt)
+        summary = response.text.strip()
+        return jsonify({"status": "success", "summary": summary})
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# ─────────────────────────────────────────────────────────────────
+# AI Reply Draft route
+# ─────────────────────────────────────────────────────────────────
+@app.route("/api/draft_reply", methods=["POST"])
+def draft_reply():
+    if "credentials" not in session:
+        return jsonify({"status": "unauthorized"}), 401
+
+    data = request.get_json()
+    subject  = data.get("subject", "")
+    body     = data.get("body", "")
+    sender   = data.get("sender", "")
+    category = data.get("category", "General")
+
+    truncated_body = body[:3000] if len(body) > 3000 else body
+
+    prompt = f"""You are a helpful email assistant for a student.
+Draft a polite, professional, and concise reply to this email.
+The reply should be appropriate for a student replying to their college or institution.
+Keep it short (3-5 sentences max). Do NOT include a subject line.
+Start with a proper greeting and end with a sign-off.
+
+Email Category: {category}
+From: {sender}
+Subject: {subject}
+Email body:
+{truncated_body}
+
+Write only the reply text, nothing else."""
+
+    try:
+        response = gemini_model.generate_content(prompt)
+        reply = response.text.strip()
+        return jsonify({"status": "success", "reply": reply})
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500   
+           
 # -------------------------
 # Homepage
 # -------------------------
