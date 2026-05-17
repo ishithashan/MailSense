@@ -1,29 +1,26 @@
 import os
 import sys
-import json
-from pathlib import Path
 from dotenv import load_dotenv
 
-# Load .env file
 load_dotenv()
 
-# ====================== NEW GOOGLE GENAI SDK ======================
-from google import genai
-from google.genai.types import Part
+import google.generativeai as genai
 
+# ====================== GEMINI SETUP ======================
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 if not gemini_api_key:
-    print("❌ ERROR: GEMINI_API_KEY is missing in .env or Render!", file=sys.stderr)
-    client = None
+    print("❌ CRITICAL: GEMINI_API_KEY is missing!", file=sys.stderr)
+    gemini_model = None
 else:
     try:
-        client = genai.Client(api_key=gemini_api_key)
-        print("✅ New Google GenAI SDK initialized successfully")
+        genai.configure(api_key=gemini_api_key)
+        gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+        print("✅ Gemini 1.5 Flash loaded successfully")
     except Exception as e:
-        print(f"❌ Failed to initialize GenAI client: {e}", file=sys.stderr)
-        client = None
-# =================================================================
+        print(f"❌ Gemini failed to load: {e}", file=sys.stderr)
+        gemini_model = None
+# ========================================================
 
 # Rest of your imports (keep as they are)
 from pathlib import Path
@@ -268,74 +265,62 @@ def toggle_star(message_id):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+# ====================== END STAR / IMPORTANT ======================
 @app.route("/api/summarize", methods=["POST"])
-def summarize():
-    if not client:
-        return jsonify({"status": "error", "summary": "Gemini client not initialized. Check API key."})
+def summarize_email():
+    if gemini_model is None:
+        return jsonify({"status": "error", "summary": "Gemini API key is not configured on server."})
 
-    data = request.get_json()
-    subject = data.get("subject", "")
-    body = data.get("body", "")
-    category = data.get("category", "General")
-
+    data = request.get_json() or {}
     try:
         prompt = f"""
-        You are an intelligent email assistant. Summarize this email concisely and professionally.
+        Summarize the following email professionally in maximum 4-5 lines:
 
-        Subject: {subject}
-        Category: {category}
+        Subject: {data.get('subject', 'No Subject')}
+        Category: {data.get('category', 'General')}
 
-        Email Content:
-        {body[:8000]}  # Limit length
+        Content:
+        {data.get('body', '')[:7000]}
         """
 
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=[prompt]
-        )
+        response = gemini_model.generate_content(prompt)
+        summary = response.text.strip() if hasattr(response, 'text') and response.text else "No summary available."
 
-        summary = response.text if response.text else "Could not generate summary."
         return jsonify({"status": "success", "summary": summary})
 
     except Exception as e:
-        print(f"Summarize error: {e}", file=sys.stderr)
-        return jsonify({"status": "error", "summary": "AI service error. Please try again."})
+        print(f"[Summarize Error] {e}", file=sys.stderr)
+        return jsonify({"status": "error", "summary": "Failed to connect to AI service. Please try again later."})
+
 
 @app.route("/api/draft_reply", methods=["POST"])
 def draft_reply():
-    if not client:
-        return jsonify({"status": "error", "reply": "Gemini client not initialized."})
+    if gemini_model is None:
+        return jsonify({"status": "error", "reply": "Gemini API key is not configured."})
 
-    data = request.get_json()
-    subject = data.get("subject", "")
-    body = data.get("body", "")
-    sender = data.get("sender", "")
-
+    data = request.get_json() or {}
     try:
         prompt = f"""
-        You are a professional email assistant. Draft a polite, concise and natural reply.
+        Draft a polite, natural and professional reply as a student:
 
-        Original Email From: {sender}
-        Subject: {subject}
+        From: {data.get('sender', '')}
+        Subject: {data.get('subject', '')}
 
-        Email Content:
-        {body[:7000]}
+        Original Email:
+        {data.get('body', '')[:6000]}
 
-        Write a good reply:
+        Reply:
         """
 
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=[prompt]
-        )
+        response = gemini_model.generate_content(prompt)
+        reply = response.text.strip() if hasattr(response, 'text') and response.text else "Could not generate reply."
 
-        reply = response.text if response.text else "Could not draft reply."
         return jsonify({"status": "success", "reply": reply})
 
     except Exception as e:
-        print(f"Draft reply error: {e}", file=sys.stderr)
-        return jsonify({"status": "error", "reply": "AI service error. Please try again."})
-
+        print(f"[Draft Reply Error] {e}", file=sys.stderr)
+        return jsonify({"status": "error", "reply": "Failed to generate reply. Please try again."})
+# ====================== CALENDAR INTEGRATION ======================
 
 # -------------------------
 # Add to Calendar route

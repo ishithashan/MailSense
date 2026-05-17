@@ -13,3 +13,4 @@ joblib
 flask-cors
 flask-session
 google-genai>=1.0.0
+google-generativeai==0.8.3
