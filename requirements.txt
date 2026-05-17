@@ -12,4 +12,4 @@ scikit-learn
 joblib
 flask-cors
 flask-session
-google-generativeai
+google-genai>=1.0.0

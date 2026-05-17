@@ -1,28 +1,29 @@
 import os
 import sys
+import json
 from pathlib import Path
-
-# Load environment variables FIRST
 from dotenv import load_dotenv
+
+# Load .env file
 load_dotenv()
 
-import google.generativeai as genai
+# ====================== NEW GOOGLE GENAI SDK ======================
+from google import genai
+from google.genai.types import Part
 
-# ====================== GEMINI SETUP ======================
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 if not gemini_api_key:
-    print("❌ ERROR: GEMINI_API_KEY is missing!", file=sys.stderr)
-    gemini_model = None
+    print("❌ ERROR: GEMINI_API_KEY is missing in .env or Render!", file=sys.stderr)
+    client = None
 else:
     try:
-        genai.configure(api_key=gemini_api_key)
-        gemini_model = genai.GenerativeModel("gemini-1.5-flash")
-        print("✅ Gemini 1.5 Flash loaded successfully")
+        client = genai.Client(api_key=gemini_api_key)
+        print("✅ New Google GenAI SDK initialized successfully")
     except Exception as e:
-        print(f"❌ Gemini failed: {e}", file=sys.stderr)
-        gemini_model = None
-# ========================================================
+        print(f"❌ Failed to initialize GenAI client: {e}", file=sys.stderr)
+        client = None
+# =================================================================
 
 # Rest of your imports (keep as they are)
 from pathlib import Path
@@ -266,83 +267,75 @@ def toggle_star(message_id):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# ─────────────────────────────────────────────────────────────────
-# AI Email Summary route
-# ─────────────────────────────────────────────────────────────────
 @app.route("/api/summarize", methods=["POST"])
-def summarize_email():
-    if "credentials" not in session:
-        return jsonify({"status": "unauthorized"}), 401
+def summarize():
+    if not client:
+        return jsonify({"status": "error", "summary": "Gemini client not initialized. Check API key."})
 
     data = request.get_json()
-    subject  = data.get("subject", "")
-    body     = data.get("body", "")
+    subject = data.get("subject", "")
+    body = data.get("body", "")
     category = data.get("category", "General")
 
-    if not body and not subject:
-        return jsonify({"status": "error", "message": "No content to summarize"}), 400
-
-    # Truncate body so it fits easily in the prompt
-    truncated_body = body[:4000] if len(body) > 4000 else body
-
-    prompt = f"""You are a smart email assistant for a student.
-Summarize this email in 3-4 concise bullet points (plain text, no markdown symbols).
-Focus on: what the email is about, any deadlines or action items, and why it matters.
-Keep it short and clear — the student should understand in 5 seconds.
-
-Email Category: {category}
-Subject: {subject}
-Body:
-{truncated_body}
-
-Return ONLY the bullet points, each on its own line starting with •"""
-
     try:
-        response = gemini_model.generate_content(prompt)
-        summary = response.text.strip()
+        prompt = f"""
+        You are an intelligent email assistant. Summarize this email concisely and professionally.
+
+        Subject: {subject}
+        Category: {category}
+
+        Email Content:
+        {body[:8000]}  # Limit length
+        """
+
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=[prompt]
+        )
+
+        summary = response.text if response.text else "Could not generate summary."
         return jsonify({"status": "success", "summary": summary})
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        print(f"Summarize error: {e}", file=sys.stderr)
+        return jsonify({"status": "error", "summary": "AI service error. Please try again."})
 
-
-# ─────────────────────────────────────────────────────────────────
-# AI Reply Draft route
-# ─────────────────────────────────────────────────────────────────
 @app.route("/api/draft_reply", methods=["POST"])
 def draft_reply():
-    if "credentials" not in session:
-        return jsonify({"status": "unauthorized"}), 401
+    if not client:
+        return jsonify({"status": "error", "reply": "Gemini client not initialized."})
 
     data = request.get_json()
-    subject  = data.get("subject", "")
-    body     = data.get("body", "")
-    sender   = data.get("sender", "")
-    category = data.get("category", "General")
-
-    truncated_body = body[:3000] if len(body) > 3000 else body
-
-    prompt = f"""You are a helpful email assistant for a student.
-Draft a polite, professional, and concise reply to this email.
-The reply should be appropriate for a student replying to their college or institution.
-Keep it short (3-5 sentences max). Do NOT include a subject line.
-Start with a proper greeting and end with a sign-off.
-
-Email Category: {category}
-From: {sender}
-Subject: {subject}
-Email body:
-{truncated_body}
-
-Write only the reply text, nothing else."""
+    subject = data.get("subject", "")
+    body = data.get("body", "")
+    sender = data.get("sender", "")
 
     try:
-        response = gemini_model.generate_content(prompt)
-        reply = response.text.strip()
+        prompt = f"""
+        You are a professional email assistant. Draft a polite, concise and natural reply.
+
+        Original Email From: {sender}
+        Subject: {subject}
+
+        Email Content:
+        {body[:7000]}
+
+        Write a good reply:
+        """
+
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=[prompt]
+        )
+
+        reply = response.text if response.text else "Could not draft reply."
         return jsonify({"status": "success", "reply": reply})
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500   
+        print(f"Draft reply error: {e}", file=sys.stderr)
+        return jsonify({"status": "error", "reply": "AI service error. Please try again."})
+        
+
 # -------------------------
 # Add to Calendar route
 # -------------------------
