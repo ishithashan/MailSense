@@ -9,7 +9,10 @@ credentials.json
 *.xlsx
 
 # Python cache
+# In .gitignore
+.env
 __pycache__/
+*.pyc
 
 # Environment variables
 .env

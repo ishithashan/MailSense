@@ -1,12 +1,28 @@
-import google.generativeai as genai
-
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-gemini_model = genai.GenerativeModel("gemini-1.5-flash")
-
+import os
 import sys
+#from pathlib import Path
+
+# Load environment variables FIRST
 from dotenv import load_dotenv
 load_dotenv()
 
+import google.generativeai as genai
+
+# === Gemini Configuration ===
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+
+if not gemini_api_key:
+    print("❌ ERROR: GEMINI_API_KEY not found in .env!", file=sys.stderr)
+    gemini_model = None
+else:
+    try:
+        genai.configure(api_key=gemini_api_key)
+        gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+        print("✅ Gemini 1.5 Flash model loaded successfully")
+    except Exception as e:
+        print(f"❌ Gemini initialization failed: {e}", file=sys.stderr)
+        gemini_model = None
+    
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
@@ -301,7 +317,7 @@ Write only the reply text, nothing else."""
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500   
-           
+
 # -------------------------
 # Homepage
 # -------------------------
