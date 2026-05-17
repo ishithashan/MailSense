@@ -10,15 +10,16 @@ import google.generativeai as genai
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 if not gemini_api_key:
-    print("❌ CRITICAL: GEMINI_API_KEY is missing!", file=sys.stderr)
+    print("❌ GEMINI_API_KEY is missing!", file=sys.stderr)
     gemini_model = None
 else:
     try:
         genai.configure(api_key=gemini_api_key)
-        gemini_model = genai.GenerativeModel("gemini-1.5-flash")
-        print("✅ Gemini 1.5 Flash loaded successfully")
+        # Use this model name:
+        gemini_model = genai.GenerativeModel("gemini-1.5-flash-8b")
+        print("✅ Gemini 1.5 Flash-8B loaded successfully")
     except Exception as e:
-        print(f"❌ Gemini failed to load: {e}", file=sys.stderr)
+        print(f"❌ Gemini Error: {e}", file=sys.stderr)
         gemini_model = None
 # ========================================================
 
@@ -243,28 +244,30 @@ def get_single_email(message_id):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# ====================== STAR / IMPORTANT ======================
+# ====================== TOGGLE STAR ======================
 @app.route("/api/email/<message_id>/star", methods=["POST"])
 def toggle_star(message_id):
     creds_json = session.get("credentials")
     if not creds_json:
-        return jsonify({"status": "unauthorized"}), 401
+        return jsonify({"status": "error", "message": "Not authenticated"}), 401
 
     try:
         creds = Credentials.from_authorized_user_info(json.loads(creds_json))
-        service = build_gmail_service(creds)
+        service = build("gmail", "v1", credentials=creds)
 
-        # Toggle STAR (IMPORTANT label)
+        # Add STARRED label
         service.users().messages().modify(
-            userId="me",
+            userId='me',
             id=message_id,
-            body={"addLabelIds": ["STARRED"]}
+            body={'addLabelIds': ['STARRED']}
         ).execute()
 
-        return jsonify({"status": "success", "message": "Email starred"})
+        return jsonify({"status": "success", "message": "Starred"})
+    
     except Exception as e:
+        print(f"Star error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
-
+        
 # ====================== END STAR / IMPORTANT ======================
 @app.route("/api/summarize", methods=["POST"])
 def summarize_email():
