@@ -85,7 +85,8 @@ Session(app)
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/calendar.events",
+    'https://www.googleapis.com/auth/gmail.modify',        # for starring
+    'https://www.googleapis.com/auth/calendar.events',
     "https://www.googleapis.com/auth/drive.file"
 ]
 if os.getenv("RENDER") is None:
@@ -334,7 +335,7 @@ def draft_reply():
     except Exception as e:
         print(f"Draft reply error: {e}", file=sys.stderr)
         return jsonify({"status": "error", "reply": "AI service error. Please try again."})
-        
+
 
 # -------------------------
 # Add to Calendar route
