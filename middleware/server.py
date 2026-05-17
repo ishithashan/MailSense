@@ -1,6 +1,6 @@
 import os
 import sys
-#from pathlib import Path
+from pathlib import Path
 
 # Load environment variables FIRST
 from dotenv import load_dotenv
@@ -8,23 +8,26 @@ load_dotenv()
 
 import google.generativeai as genai
 
-# === Gemini Configuration ===
+# ====================== GEMINI SETUP ======================
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 if not gemini_api_key:
-    print("❌ ERROR: GEMINI_API_KEY not found in .env!", file=sys.stderr)
+    print("❌ ERROR: GEMINI_API_KEY is missing!", file=sys.stderr)
     gemini_model = None
 else:
     try:
         genai.configure(api_key=gemini_api_key)
         gemini_model = genai.GenerativeModel("gemini-1.5-flash")
-        print("✅ Gemini 1.5 Flash model loaded successfully")
+        print("✅ Gemini 1.5 Flash loaded successfully")
     except Exception as e:
-        print(f"❌ Gemini initialization failed: {e}", file=sys.stderr)
+        print(f"❌ Gemini failed: {e}", file=sys.stderr)
         gemini_model = None
-    
+# ========================================================
+
+# Rest of your imports (keep as they are)
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from flask import Flask, session, jsonify, render_template, redirect, request, url_for
 from flask_cors import CORS
@@ -81,6 +84,7 @@ Session(app)
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/calendar.events",
     "https://www.googleapis.com/auth/drive.file"
 ]
 if os.getenv("RENDER") is None:
@@ -240,6 +244,28 @@ def get_single_email(message_id):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+# ====================== STAR / IMPORTANT ======================
+@app.route("/api/email/<message_id>/star", methods=["POST"])
+def toggle_star(message_id):
+    creds_json = session.get("credentials")
+    if not creds_json:
+        return jsonify({"status": "unauthorized"}), 401
+
+    try:
+        creds = Credentials.from_authorized_user_info(json.loads(creds_json))
+        service = build_gmail_service(creds)
+
+        # Toggle STAR (IMPORTANT label)
+        service.users().messages().modify(
+            userId="me",
+            id=message_id,
+            body={"addLabelIds": ["STARRED"]}
+        ).execute()
+
+        return jsonify({"status": "success", "message": "Email starred"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 # ─────────────────────────────────────────────────────────────────
 # AI Email Summary route
 # ─────────────────────────────────────────────────────────────────
@@ -317,7 +343,35 @@ Write only the reply text, nothing else."""
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500   
+# -------------------------
+# Add to Calendar route
+# -------------------------
+@app.route("/api/add_to_calendar", methods=["POST"])
+def add_to_calendar():
+    creds_json = session.get("credentials")
+    if not creds_json:
+        return jsonify({"status": "unauthorized"}), 401
 
+    data = request.get_json()
+    summary = data.get("summary")
+    description = data.get("description")
+    start_time = data.get("start")   # ISO format
+
+    try:
+        creds = Credentials.from_authorized_user_info(json.loads(creds_json))
+        service = build("calendar", "v3", credentials=creds)
+
+        event = {
+            'summary': summary or 'MailSense Event',
+            'description': description,
+            'start': {'dateTime': start_time, 'timeZone': 'Asia/Kolkata'},
+            'end': {'dateTime': start_time, 'timeZone': 'Asia/Kolkata'},  # Same for now
+        }
+
+        event = service.events().insert(calendarId='primary', body=event).execute()
+        return jsonify({"status": "success", "event": event})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 # -------------------------
 # Homepage
 # -------------------------

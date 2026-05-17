@@ -160,6 +160,8 @@ function Dashboard() {
   const [replyLoading, setReplyLoading]     = useState(false);
 
   // ── Fetch all emails ──────────────────────────────────────
+  
+
   // ── Fetch all emails ──────────────────────────────────────
   const fetchEmails = useCallback(async () => {
     try {
@@ -269,6 +271,20 @@ function Dashboard() {
     setAiReply("");
     setActiveTab("body");
     void fetchSingleEmail(email.id);
+  };
+
+  const toggleStar = async (id) => {
+    try {
+      await fetch(`/api/email/${id}/star`, {
+        method: "POST",
+        credentials: "include"
+      });
+      alert("Email starred ✓");
+      // Optional: Refresh emails
+      void fetchEmails();
+    } catch {
+      alert("Failed to star email");
+    }
   };
 
   // ── Tab switch helper (triggers AI lazily) ────────────────
@@ -516,7 +532,11 @@ function Dashboard() {
                                   <circle cx="12" cy="12" r="3"/>
                                 </svg>
                               </button>
-                              <button className="action-btn" title="Star email">
+                              <button 
+                                className="action-btn" 
+                                title="Star email"
+                                onClick={() => toggleStar(email.id)}
+                              >
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                                 </svg>
